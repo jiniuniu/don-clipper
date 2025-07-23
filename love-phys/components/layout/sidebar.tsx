@@ -50,9 +50,9 @@ export function Sidebar({
     setDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (sessionToDelete && onDeleteSession) {
-      onDeleteSession(sessionToDelete._id);
+      await onDeleteSession(sessionToDelete._id);
     }
     setDeleteDialogOpen(false);
     setSessionToDelete(null);
@@ -172,7 +172,7 @@ export function Sidebar({
           <AlertDialogHeader>
             <AlertDialogTitle>删除对话</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除对话{sessionToDelete?.title}
+              确定要删除对话&quot;{sessionToDelete?.title}&quot;
               吗？此操作无法撤销，将永久删除该对话及其所有内容。
             </AlertDialogDescription>
           </AlertDialogHeader>

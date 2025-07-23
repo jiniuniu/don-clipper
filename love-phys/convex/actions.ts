@@ -6,31 +6,32 @@ import { Id } from "./_generated/dataModel";
 
 export const generateExplanation = action({
   args: {
-    sessionId: v.optional(v.id("sessions")),
+    sessionId: v.id("sessions"), // 现在是必需的
     question: v.string(),
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handler: async (ctx, { sessionId, question }): Promise<any> => {
     let explanationId: Id<"explanations"> | undefined;
     try {
-      // 1. 创建或获取 Session
-      let currentSessionId = sessionId;
-      if (!currentSessionId) {
-        currentSessionId = await ctx.runMutation(api.mutations.createSession, {
-          title: question.slice(0, 30) + (question.length > 30 ? "..." : ""),
-        });
+      // 1. 验证 Session 是否存在
+      const session = await ctx.runQuery(api.queries.getSession, {
+        sessionId,
+      });
+
+      if (!session) {
+        throw new Error("Session not found");
       }
 
       // 2. 创建 generating 状态的解释记录
       explanationId = await ctx.runMutation(api.mutations.createExplanation, {
-        sessionId: currentSessionId,
+        sessionId,
         question,
       });
 
       // 3. 构建对话历史
       const conversationHistory = await buildConversationHistory(
         ctx,
-        currentSessionId
+        sessionId
       );
 
       // 4. 生成物理解释
@@ -49,13 +50,18 @@ export const generateExplanation = action({
         status: "completed",
       });
 
-      // 6. 更新 Session 时间戳
+      // 6. 更新 Session 时间戳和标题（如果需要）
+      const shouldUpdateTitle =
+        question.length <= 50 && session.title === "新的物理探索";
       await ctx.runMutation(api.mutations.updateSession, {
-        sessionId: currentSessionId,
+        sessionId,
+        title: shouldUpdateTitle
+          ? question.slice(0, 30) + (question.length > 30 ? "..." : "")
+          : undefined,
       });
 
       return {
-        sessionId: currentSessionId,
+        sessionId,
         explanationId,
         success: true,
       };
@@ -94,8 +100,17 @@ export const retryGeneration = action({
         status: "generating",
       });
 
+      // 构建对话历史
+      const conversationHistory = await buildConversationHistory(
+        ctx,
+        explanation.sessionId
+      );
+
       // 重新生成
-      const result = await generatePhysicsExplanation(explanation.question);
+      const result = await generatePhysicsExplanation(
+        explanation.question,
+        conversationHistory
+      );
 
       // 更新结果
       await ctx.runMutation(api.mutations.updateExplanation, {

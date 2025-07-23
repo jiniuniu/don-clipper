@@ -12,7 +12,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ onSubmit, disabled }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
+    <div className="flex flex-col items-center justify-center min-h-full p-8">
       <div className="max-w-2xl w-full text-center space-y-8">
         {/* Logo and Title */}
         <div className="space-y-4">

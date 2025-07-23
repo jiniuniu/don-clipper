@@ -42,14 +42,9 @@ export function MainContent({
 
   // 显示解释列表 + 底部输入框
   return (
-    <div className={cn("flex-1 flex flex-col min-h-0", className)}>
-      {" "}
-      {/* 添加 min-h-0 */}
+    <div className={cn("flex-1 flex flex-col", className)}>
       {/* 滚动内容区域 */}
-      <div
-        ref={scrollAreaRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden" // 明确指定滚动方向
-      >
+      <div ref={scrollAreaRef} className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto p-6 space-y-6 pb-4">
           {explanations.map((explanation) => (
             <ExplanationCard
@@ -61,8 +56,9 @@ export function MainContent({
           ))}
         </div>
       </div>
+
       {/* 底部固定输入框 */}
-      <div className="flex-shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-4xl mx-auto p-4">
           <ChatInput
             onSubmit={onAskQuestion}

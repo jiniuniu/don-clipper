@@ -15,11 +15,20 @@ export const createSession = mutation({
 });
 
 export const updateSession = mutation({
-  args: { sessionId: v.id("sessions") },
-  handler: async (ctx, { sessionId }) => {
-    await ctx.db.patch(sessionId, {
+  args: {
+    sessionId: v.id("sessions"),
+    title: v.optional(v.string()),
+  },
+  handler: async (ctx, { sessionId, title }) => {
+    const updates: { updatedAt: number; title?: string } = {
       updatedAt: Date.now(),
-    });
+    };
+
+    if (title !== undefined) {
+      updates.title = title;
+    }
+
+    await ctx.db.patch(sessionId, updates);
   },
 });
 
