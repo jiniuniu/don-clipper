@@ -26,19 +26,25 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
 
   const handleDeleteSession = async (sessionId: string) => {
     try {
-      await deleteSession(sessionId);
-
-      // 立即检查当前路径，不依赖 sessions 数组的状态
       const isCurrentSession = pathname === `/session/${sessionId}`;
 
-      // 如果删除的是当前会话，立即跳转
+      // 如果要删除当前会话，先计算跳转目标
+      let redirectTarget = null;
       if (isCurrentSession) {
-        router.push("/session");
-        return; // 立即返回，不需要再判断其他条件
+        const otherSessions = sessions.filter((s) => s._id !== sessionId);
+        redirectTarget =
+          otherSessions.length > 0
+            ? `/session/${otherSessions[0]._id}`
+            : "/session";
       }
 
-      // 如果不是当前会话，等待数据更新后再判断是否需要跳转
-      // 这里可以添加一个短暂的延迟检查，或者通过其他方式检查
+      // 执行删除
+      await deleteSession(sessionId);
+
+      // 执行跳转
+      if (redirectTarget) {
+        router.replace(redirectTarget); // 使用 replace 而不是 push
+      }
     } catch (error) {
       console.error("Failed to delete session:", error);
     }

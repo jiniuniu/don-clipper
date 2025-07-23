@@ -9,10 +9,10 @@ interface LoadingExplanationProps {
 }
 
 const LOADING_STEPS = [
-  { icon: Brain, text: "分析物理现象...", duration: 2000 },
-  { icon: Sparkles, text: "生成图示说明...", duration: 3000 },
-  { icon: Lightbulb, text: "整理相关概念...", duration: 2000 },
-  { icon: Loader2, text: "完善解释内容...", duration: 1000 },
+  { icon: Brain, text: "分析物理现象...", duration: 5000 },
+  { icon: Sparkles, text: "生成图示说明...", duration: 15000 },
+  { icon: Lightbulb, text: "整理相关概念...", duration: 5000 },
+  { icon: Loader2, text: "完善解释内容...", duration: 5000 },
 ];
 
 export function LoadingExplanation({ className }: LoadingExplanationProps) {
