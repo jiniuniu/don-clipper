@@ -83,9 +83,14 @@ export function Sidebar({
 
   return (
     <>
-      <div className={cn("w-80 border-r bg-muted/50 flex flex-col", className)}>
-        <div className="p-4 space-y-4 flex-1 overflow-hidden">
-          {/* Header */}
+      <div
+        className={cn(
+          "w-80 border-r bg-muted/50 flex flex-col h-full",
+          className
+        )}
+      >
+        {/* Header - 固定高度 */}
+        <div className="p-4 space-y-4 shrink-0">
           <div className="space-y-2">
             <h2 className="text-lg font-semibold">对话历史</h2>
             <Button
@@ -97,11 +102,12 @@ export function Sidebar({
               新对话
             </Button>
           </div>
-
           <Separator />
+        </div>
 
-          {/* Sessions List */}
-          <div className="flex-1 overflow-auto space-y-2">
+        {/* Sessions List - 可滚动区域 */}
+        <div className="flex-1 overflow-hidden px-4 pb-4">
+          <div className="h-full overflow-y-auto space-y-2 pr-2">
             {sessions.length === 0 ? (
               <div className="text-center py-8">
                 <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

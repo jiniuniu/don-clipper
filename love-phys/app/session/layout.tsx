@@ -50,7 +50,7 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
     }
   };
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen">
       <Sidebar
         sessions={sessions}
         activeSessionId={activeSessionId} // 传入从路径提取的 sessionId
@@ -59,7 +59,9 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
         onDeleteSession={handleDeleteSession}
       />
 
-      <div className="flex-1 flex flex-col min-h-0">{children}</div>
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {children}
+      </div>
     </div>
   );
 }
