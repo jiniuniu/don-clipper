@@ -15,13 +15,11 @@ export interface Explanation {
   explanation?: string;
   relatedPhenomena?: string[];
   furtherQuestions?: string[];
-  status: "generating" | "completed" | "failed";
+  status:
+    | "generating"
+    | "content_completed"
+    | "svg_generating"
+    | "completed"
+    | "failed";
   createdAt: number;
-}
-
-export interface PhysicsExplanation {
-  svgCode: string;
-  explanation: string;
-  relatedPhenomena: string[];
-  furtherQuestions: string[];
 }

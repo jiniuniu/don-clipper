@@ -58,6 +58,8 @@ export const updateExplanation = mutation({
     status: v.optional(
       v.union(
         v.literal("generating"),
+        v.literal("content_completed"), // 新增
+        v.literal("svg_generating"), // 新增
         v.literal("completed"),
         v.literal("failed")
       )

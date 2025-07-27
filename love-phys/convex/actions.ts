@@ -1,28 +1,24 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
-import { generatePhysicsExplanation } from "./llm";
 import { Id } from "./_generated/dataModel";
+import { generatePhysicsContent } from "./chains/content_chain";
+import { generateSVGFromContent } from "./chains/svg_chain";
 
 export const generateExplanation = action({
   args: {
-    sessionId: v.id("sessions"), // 现在是必需的
+    sessionId: v.id("sessions"),
     question: v.string(),
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handler: async (ctx, { sessionId, question }): Promise<any> => {
     let explanationId: Id<"explanations"> | undefined;
     try {
-      // 1. 验证 Session 是否存在
-      const session = await ctx.runQuery(api.queries.getSession, {
-        sessionId,
-      });
+      // 1. 验证 Session
+      const session = await ctx.runQuery(api.queries.getSession, { sessionId });
+      if (!session) throw new Error("Session not found");
 
-      if (!session) {
-        throw new Error("Session not found");
-      }
-
-      // 2. 创建 generating 状态的解释记录
+      // 2. 创建初始记录
       explanationId = await ctx.runMutation(api.mutations.createExplanation, {
         sessionId,
         question,
@@ -34,49 +30,61 @@ export const generateExplanation = action({
         sessionId
       );
 
-      // 4. 生成物理解释
-      const result = await generatePhysicsExplanation(
+      // 第一步：生成内容
+      const contentResult = await generatePhysicsContent(
         question,
         conversationHistory
       );
 
-      // 5. 更新解释记录
+      // 更新为内容完成状态
       await ctx.runMutation(api.mutations.updateExplanation, {
         explanationId,
-        svgCode: result.svgCode,
-        explanation: result.explanation,
-        relatedPhenomena: result.relatedPhenomena,
-        furtherQuestions: result.furtherQuestions,
+        explanation: contentResult.explanation,
+        relatedPhenomena: contentResult.relatedPhenomena,
+        furtherQuestions: contentResult.furtherQuestions,
+        status: "content_completed",
+      });
+
+      // 更新状态为SVG生成中
+      await ctx.runMutation(api.mutations.updateExplanation, {
+        explanationId,
+        status: "svg_generating",
+      });
+
+      // 第二步：生成SVG
+      const svgResult = await generateSVGFromContent(
+        question,
+        contentResult.explanation,
+        contentResult.relatedPhenomena
+      );
+
+      // 最终完成
+      await ctx.runMutation(api.mutations.updateExplanation, {
+        explanationId,
+        svgCode: svgResult.svgCode,
         status: "completed",
       });
 
-      // 6. 更新 Session 时间戳和标题（如果需要）
+      // 更新Session标题
       const shouldUpdateTitle =
         question.length <= 50 && session.title === "新的物理探索";
-      await ctx.runMutation(api.mutations.updateSession, {
-        sessionId,
-        title: shouldUpdateTitle
-          ? question.slice(0, 30) + (question.length > 30 ? "..." : "")
-          : undefined,
-      });
+      if (shouldUpdateTitle) {
+        await ctx.runMutation(api.mutations.updateSession, {
+          sessionId,
+          title: question.slice(0, 30) + (question.length > 30 ? "..." : ""),
+        });
+      }
 
-      return {
-        sessionId,
-        explanationId,
-        success: true,
-      };
+      return { sessionId, explanationId, success: true };
     } catch (error) {
       console.error("Failed to generate explanation:", error);
-
-      // 错误处理：标记解释为失败状态
       if (explanationId) {
         await ctx.runMutation(api.mutations.updateExplanation, {
           explanationId,
           status: "failed",
         });
       }
-
-      throw new Error(`Failed to generate explanation: ${error}`);
+      throw error;
     }
   },
 });
@@ -106,19 +114,37 @@ export const retryGeneration = action({
         explanation.sessionId
       );
 
-      // 重新生成
-      const result = await generatePhysicsExplanation(
+      // 第一步：重新生成内容
+      const contentResult = await generatePhysicsContent(
         explanation.question,
         conversationHistory
       );
 
-      // 更新结果
+      // 更新内容完成状态
       await ctx.runMutation(api.mutations.updateExplanation, {
         explanationId,
-        svgCode: result.svgCode,
-        explanation: result.explanation,
-        relatedPhenomena: result.relatedPhenomena,
-        furtherQuestions: result.furtherQuestions,
+        explanation: contentResult.explanation,
+        relatedPhenomena: contentResult.relatedPhenomena,
+        furtherQuestions: contentResult.furtherQuestions,
+        status: "content_completed",
+      });
+
+      // 第二步：生成SVG
+      await ctx.runMutation(api.mutations.updateExplanation, {
+        explanationId,
+        status: "svg_generating",
+      });
+
+      const svgResult = await generateSVGFromContent(
+        explanation.question,
+        contentResult.explanation,
+        contentResult.relatedPhenomena
+      );
+
+      // 最终完成
+      await ctx.runMutation(api.mutations.updateExplanation, {
+        explanationId,
+        svgCode: svgResult.svgCode,
         status: "completed",
       });
 

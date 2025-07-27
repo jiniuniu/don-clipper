@@ -14,7 +14,8 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as actions from "../actions.js";
-import type * as llm from "../llm.js";
+import type * as chains_content_chain from "../chains/content_chain.js";
+import type * as chains_svg_chain from "../chains/svg_chain.js";
 import type * as mutations from "../mutations.js";
 import type * as queries from "../queries.js";
 
@@ -28,7 +29,8 @@ import type * as queries from "../queries.js";
  */
 declare const fullApi: ApiFromModules<{
   actions: typeof actions;
-  llm: typeof llm;
+  "chains/content_chain": typeof chains_content_chain;
+  "chains/svg_chain": typeof chains_svg_chain;
   mutations: typeof mutations;
   queries: typeof queries;
 }>;

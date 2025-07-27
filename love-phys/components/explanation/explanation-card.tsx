@@ -7,7 +7,7 @@ import { SVGDisplay } from "./svg-display";
 import { ExplanationText } from "./explanation-text";
 import { RelatedPhenomena } from "./related-phenomena";
 import { FurtherQuestions } from "./further-questions";
-import { LoadingExplanation } from "./loading-explanation";
+import { LoadingExplanation } from "./loading-status";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, AlertCircle, Clock } from "lucide-react";
 
@@ -29,7 +29,11 @@ export function ExplanationCard({
     });
   };
 
-  if (explanation.status === "generating") {
+  if (
+    explanation.status === "generating" ||
+    explanation.status === "content_completed" ||
+    explanation.status === "svg_generating"
+  ) {
     return (
       <Card className="transition-all duration-200 hover:shadow-md">
         <CardHeader className="pb-4">
@@ -42,7 +46,7 @@ export function ExplanationCard({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <LoadingExplanation />
+          <LoadingExplanation status={explanation.status} />
         </CardContent>
       </Card>
     );

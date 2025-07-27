@@ -59,7 +59,7 @@ export function SVGDisplay({ svgCode, title, className }: SVGDisplayProps) {
 
           {/* SVG 内容 */}
           <div
-            className="w-full min-h-[200px] flex items-center justify-center"
+            className="w-full max-h-[600px] overflow-hidden flex items-center justify-center"
             dangerouslySetInnerHTML={{ __html: svgCode }}
             onError={() => setHasError(true)}
           />
