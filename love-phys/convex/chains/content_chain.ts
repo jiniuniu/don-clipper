@@ -15,40 +15,40 @@ export const PhysicsContentSchema = z.object({
 
 export type PhysicsContent = z.infer<typeof PhysicsContentSchema>;
 
-export const CONTENT_PROMPT_TMPL = `你是一个物理学教育助手，专门帮助用户理解自然现象背后的物理原理。
+export const CONTENT_PROMPT_TMPL = `You are a physics education assistant specializing in helping users understand the physical principles behind natural phenomena.
 
-## 任务要求
-请为用户的物理问题提供详细的原理解释，并给出相关现象和延伸问题。
+## Task Requirements
+Please provide a detailed explanation of the physical principles for the user's physics question, along with related phenomena and follow-up questions.
 
-## 解释要求
-- 语言通俗易懂，200-400字
-- 重点突出因果关系和物理机制
-- 考虑对话历史的连贯性
-- 使用生活化的类比和例子
+## Explanation Requirements
+- Use clear, accessible language, 200-400 words
+- Emphasize causal relationships and physical mechanisms
+- Consider the coherence of conversation history
+- Use everyday analogies and examples
 
-## 相关现象要求
-- 基于相同物理原理，贴近日常生活
-- 每个3-8个字，简洁明了
+## Related Phenomena Requirements
+- Based on the same physical principles, close to daily life
+- Each item 3-8 words, concise and clear
 
-## 延伸问题要求
-- **第一个**：深化当前现象理解（探究更深层的"为什么"）
-- **第二个**：横向联系其他现象（"还有什么类似的"）
-- **第三个**：实际应用或前沿发展（"这个原理用在哪里"）
-- 每个问题控制在15字以内
+## Follow-up Questions Requirements
+- **First**: Deepen understanding of current phenomenon (explore deeper "why")
+- **Second**: Connect horizontally to other phenomena ("what else is similar")
+- **Third**: Practical applications or frontier developments ("where is this principle used")
+- Each question should be within 15 words
 
-## 重要：文本格式要求
-⚠️ 所有文本字段严格遵循以下规则：
-- 解释文本中不要使用双引号(")，用单引号(')或中文引号("")代替
-- 避免使用反斜杠(\)等特殊字符
-- 相关现象和延伸问题使用简洁表述，避免引号
-- 如需强调，使用**粗体**而非引号
+## Important: Text Format Requirements
+⚠️ All text fields must strictly follow these rules:
+- Do not use double quotes (") in explanation text, use single quotes (') or alternative formatting instead
+- Avoid backslashes (\) and other special characters
+- Use concise expressions for related phenomena and follow-up questions, avoiding quotes
+- For emphasis, use **bold text** instead of quotes
 
-错误示例："F浮"的大小取决于...
-正确示例：F浮的大小取决于... 或 '浮力'的大小取决于...
+Incorrect example: The magnitude of "buoyant force" depends on...
+Correct example: The magnitude of buoyant force depends on... or The magnitude of 'buoyancy' depends on...
 
 {history}
 
-用户问题：{question}
+User question: {question}
 
 {format_instructions}`;
 
@@ -70,11 +70,11 @@ export async function generatePhysicsContent(
   const llm = await createContentLLM();
   const parser = StructuredOutputParser.fromZodSchema(PhysicsContentSchema);
 
-  // 格式化对话历史
+  // Format conversation history
   const historyText =
     conversationHistory.length > 0
-      ? `## 对话历史
-${conversationHistory.map((msg) => `${msg.role === "user" ? "用户" : "AI"}: ${msg.content}`).join("\n\n")}
+      ? `## Conversation History
+${conversationHistory.map((msg) => `${msg.role === "user" ? "User" : "AI"}: ${msg.content}`).join("\n\n")}
 
 `
       : "";

@@ -10,7 +10,7 @@ export default function HomePage() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useUser();
 
-  // 如果已登录，自动跳转到 /session
+  // If already logged in, automatically redirect to /session
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       router.push("/session");
@@ -18,26 +18,25 @@ export default function HomePage() {
   }, [isLoaded, isSignedIn, router]);
 
   const handleGetStarted = () => {
-    // 未登录时跳转到 /session，中间件会处理登录
+    // When not logged in, redirect to /session, middleware will handle login
     router.push("/session");
   };
 
-  // 加载中状态
+  // Loading state
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>正在加载...</p>
+          <p>Loading...</p>
         </div>
       </div>
     );
   }
 
-  // 已登录会自动跳转，这里主要是未登录状态的展示
+  // Logged in users will auto-redirect, this is mainly for displaying the not-logged-in state
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      {/* 现有的页面内容保持不变 */}
       <div className="max-w-4xl mx-auto text-center px-6">
         {/* Hero Section */}
         <div className="space-y-8">
@@ -56,25 +55,32 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8 my-16">
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <div className="text-4xl mb-4">🌈</div>
-              <h3 className="text-xl font-semibold mb-2">可视化解释</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Visual Explanations
+              </h3>
               <p className="text-gray-600">
-                通过精美的图示帮助你理解复杂的物理现象
+                Understand complex physical phenomena through beautiful
+                illustrations
               </p>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <div className="text-4xl mb-4">🤖</div>
-              <h3 className="text-xl font-semibold mb-2">AI 驱动</h3>
+              <h3 className="text-xl font-semibold mb-2">AI-Powered</h3>
               <p className="text-gray-600">
-                基于先进的AI技术，提供准确易懂的物理解释
+                Provides accurate and accessible physics explanations using
+                advanced AI technology
               </p>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <div className="text-4xl mb-4">💡</div>
-              <h3 className="text-xl font-semibold mb-2">互动学习</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Interactive Learning
+              </h3>
               <p className="text-gray-600">
-                通过问答式学习，激发你的好奇心和探索欲
+                Spark your curiosity and desire to explore through Q&A-style
+                learning
               </p>
             </div>
           </div>
@@ -86,10 +92,12 @@ export default function HomePage() {
               size="lg"
               className="text-xl px-8 py-4 bg-blue-600 hover:bg-blue-700"
             >
-              开始探索物理世界 🚀
+              Start Exploring Physics 🚀
             </Button>
 
-            <p className="text-gray-500 text-sm">免费使用，无需注册</p>
+            <p className="text-gray-500 text-sm">
+              Free to use, no registration required
+            </p>
           </div>
         </div>
       </div>

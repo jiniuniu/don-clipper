@@ -92,11 +92,11 @@ export function ChatInput({
       {/* 快捷键提示 */}
       {question.length > 0 && (
         <div className="flex justify-between items-center text-xs text-muted-foreground">
-          <span>Enter 发送 • Shift+Enter 换行</span>
+          <span>Enter to send • Shift+Enter for new line</span>
           {disabled && (
             <span className="flex items-center">
               <Loader2 className="h-3 w-3 animate-spin mr-1" />
-              正在生成回复...
+              Generating response...
             </span>
           )}
         </div>

@@ -57,7 +57,7 @@ export function EmptyState({ onSubmit, disabled }: EmptyStateProps) {
 
         {/* Example Questions */}
         <div className="space-y-4">
-          <p className="text-lg font-medium">💡 试试这些问题:</p>
+          <p className="text-lg font-medium">💡 Try these questions:</p>
           <div className="flex flex-col gap-2">
             {randomQuestions.map((question, index) => (
               <Button

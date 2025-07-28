@@ -28,9 +28,11 @@ export function SVGDisplay({ svgCode, title, className }: SVGDisplayProps) {
         )}
       >
         <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <p className="text-muted-foreground font-medium">图示生成失败</p>
+        <p className="text-muted-foreground font-medium">
+          Failed to generate illustrations
+        </p>
         <p className="text-sm text-muted-foreground/70 mt-1">
-          SVG 代码格式错误或渲染失败
+          SVG code format error or rendering failed
         </p>
       </div>
     );
@@ -67,7 +69,7 @@ export function SVGDisplay({ svgCode, title, className }: SVGDisplayProps) {
 
         {/* 标题 */}
         <p className="text-xs text-muted-foreground mt-2 text-center">
-          📊 {title} - 示意图
+          📊 {title}
         </p>
       </div>
 
@@ -97,9 +99,7 @@ export function SVGDisplay({ svgCode, title, className }: SVGDisplayProps) {
               </div>
 
               {/* 全屏标题 */}
-              <p className="text-center mt-4 text-lg font-medium">
-                📊 {title} - 详细示意图
-              </p>
+              <p className="text-center mt-4 text-lg font-medium">📊 {title}</p>
             </div>
           </div>
         </div>

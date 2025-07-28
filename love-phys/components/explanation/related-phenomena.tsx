@@ -21,7 +21,7 @@ export function RelatedPhenomena({
   return (
     <div className={`space-y-3 ${className}`}>
       <h3 className="text-base font-semibold flex items-center text-primary">
-        💡 相关现象
+        💡 Related Phenomena
       </h3>
       <div className="flex flex-wrap gap-2">
         {phenomena.map((phenomenon, index) => (

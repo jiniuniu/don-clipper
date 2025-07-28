@@ -47,7 +47,7 @@ export function UserAvatar({ className }: UserAvatarProps) {
       <SignInButton mode="modal">
         <Button variant="outline" size="sm" className="h-8">
           <LogIn className="h-4 w-4 mr-2" />
-          <span className="hidden sm:inline">登录</span>
+          <span className="hidden sm:inline">Sign In</span>
         </Button>
       </SignInButton>
     </div>

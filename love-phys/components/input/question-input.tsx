@@ -53,7 +53,7 @@ export function QuestionInput({
         className="w-full"
       >
         <Send className="mr-2 h-4 w-4" />
-        开始探索
+        Start Exploring
       </Button>
     </div>
   );

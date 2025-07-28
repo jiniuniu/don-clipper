@@ -68,9 +68,10 @@ export function ExplanationCard({
           <div className="text-center py-8 space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
             <div>
-              <p className="text-destructive font-medium">生成失败</p>
+              <p className="text-destructive font-medium">Generation Failed</p>
               <p className="text-sm text-muted-foreground mt-2">
-                抱歉，生成解释时出现错误。请点击重试或重新提问。
+                Sorry, an error occurred while generating the explanation.
+                Please try again or ask a new question.
               </p>
             </div>
             <div className="flex gap-2 justify-center">
@@ -81,11 +82,11 @@ export function ExplanationCard({
                   className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
-                  重试
+                  Retry
                 </Button>
               )}
               <Button onClick={() => onQuestionClick(explanation.question)}>
-                重新提问
+                Ask Again
               </Button>
             </div>
           </div>

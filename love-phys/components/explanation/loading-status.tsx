@@ -8,21 +8,22 @@ interface LoadingExplanationProps {
   className?: string;
 }
 
-// 定义两个主要步骤，包含预计时间
+// Define two main steps with estimated time
 const LOADING_PHASES = [
   {
     key: "generating",
     icon: Brain,
-    title: "生成物理解释",
-    description: "分析物理现象并生成详细解释...",
-    estimatedTime: "30-60秒",
+    title: "Generating Physics Explanation",
+    description:
+      "Analyzing physical phenomena and generating detailed explanation...",
+    estimatedTime: "30-60 seconds",
   },
   {
     key: "svg_generating",
     icon: Image,
-    title: "绘制演示图示",
-    description: "根据解释生成可视化图表...",
-    estimatedTime: "1-2分钟",
+    title: "Creating Demonstration Diagram",
+    description: "Generating visualization charts based on explanation...",
+    estimatedTime: "1-2 minutes",
   },
 ] as const;
 
@@ -36,10 +37,10 @@ export function LoadingExplanation({
     Record<string, number>
   >({});
 
-  // 根据状态确定当前阶段
+  // Determine current phase based on status
   const statusToPhaseMap = {
     generating: 0,
-    content_completed: 0, // 内容完成仍显示第一阶段
+    content_completed: 0, // Content completed still shows first phase
     svg_generating: 1,
   };
 
@@ -47,7 +48,7 @@ export function LoadingExplanation({
   const currentPhase = LOADING_PHASES[currentPhaseIndex];
   const CurrentIcon = currentPhase?.icon || Loader2;
 
-  // 记录每个阶段的开始时间
+  // Record start time for each phase
   useEffect(() => {
     if (currentPhase && !phaseStartTimes[currentPhase.key]) {
       setPhaseStartTimes((prev) => ({
@@ -57,7 +58,7 @@ export function LoadingExplanation({
     }
   }, [status, currentPhase, phaseStartTimes]);
 
-  // 更新总执行时间
+  // Update total execution time
   useEffect(() => {
     const timer = setInterval(() => {
       setElapsedTime(Date.now() - startTime);
@@ -66,31 +67,31 @@ export function LoadingExplanation({
     return () => clearInterval(timer);
   }, [startTime]);
 
-  // 格式化时间显示
+  // Format time display
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
 
     if (minutes > 0) {
-      return `${minutes}分${remainingSeconds}秒`;
+      return `${minutes}m ${remainingSeconds}s`;
     }
-    return `${remainingSeconds}秒`;
+    return `${remainingSeconds}s`;
   };
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* 执行时间显示 */}
+      {/* Execution time display */}
       <div className="flex justify-center">
         <div className="flex items-center space-x-2 px-3 py-1 bg-blue-50 rounded-full">
           <Clock className="h-4 w-4 text-blue-600" />
           <span className="text-blue-700 text-sm">
-            已用时: {formatTime(elapsedTime)}
+            Elapsed: {formatTime(elapsedTime)}
           </span>
         </div>
       </div>
 
-      {/* 阶段指示器 */}
+      {/* Phase indicators */}
       <div className="flex justify-center space-x-6">
         {LOADING_PHASES.map((phase, index) => {
           const Icon = phase.icon;
@@ -109,7 +110,7 @@ export function LoadingExplanation({
                     : "scale-95 opacity-40"
               }`}
             >
-              {/* 图标容器 */}
+              {/* Icon container */}
               <div
                 className={`relative p-3 rounded-full border-2 transition-all duration-300 ${
                   isActive
@@ -127,13 +128,13 @@ export function LoadingExplanation({
                   />
                 )}
 
-                {/* 当前阶段的光晕效果 */}
+                {/* Current phase glow effect */}
                 {isActive && (
                   <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
                 )}
               </div>
 
-              {/* 阶段标题和状态 */}
+              {/* Phase title and status */}
               <div className="text-center">
                 <p
                   className={`text-xs font-medium transition-colors ${
@@ -147,25 +148,25 @@ export function LoadingExplanation({
                   {phase.title}
                 </p>
 
-                {/* 状态指示 */}
+                {/* Status indicator */}
                 <div className="mt-1">
                   {isCompleted && (
                     <div className="flex items-center justify-center space-x-1">
                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                      <span className="text-xs text-green-600">完成</span>
+                      <span className="text-xs text-green-600">Completed</span>
                     </div>
                   )}
                   {isActive && (
                     <div className="flex items-center justify-center space-x-1">
                       <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                      <span className="text-xs text-primary">进行中</span>
+                      <span className="text-xs text-primary">In Progress</span>
                     </div>
                   )}
                   {isFuture && (
                     <div className="flex items-center justify-center space-x-1">
                       <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full" />
                       <span className="text-xs text-muted-foreground">
-                        等待
+                        Waiting
                       </span>
                     </div>
                   )}
@@ -176,7 +177,7 @@ export function LoadingExplanation({
         })}
       </div>
 
-      {/* 连接线 */}
+      {/* Connection lines */}
       <div className="flex justify-center">
         <div className="flex items-center space-x-4">
           {LOADING_PHASES.map((_, index) => {
@@ -202,7 +203,7 @@ export function LoadingExplanation({
         </div>
       </div>
 
-      {/* 当前阶段提示 */}
+      {/* Current phase hint */}
       <div className="bg-muted/30 rounded-lg p-4 text-center">
         <div className="flex items-center justify-center space-x-2 mb-2">
           <CurrentIcon className="h-4 w-4 animate-spin text-primary" />
@@ -214,20 +215,21 @@ export function LoadingExplanation({
           {currentPhase?.description}
         </p>
 
-        {/* 特别提示图表生成时间 */}
+        {/* Special notice for diagram generation time */}
         {status === "svg_generating" && (
           <div className="mt-2 p-2 bg-amber-50 rounded border border-amber-200">
             <p className="text-xs text-amber-700">
-              ⏰ 图表生成需要1-2分钟，请耐心等待
+              ⏰ Diagram generation takes 1-2 minutes, please be patient
             </p>
           </div>
         )}
       </div>
 
-      {/* 提示文本 */}
+      {/* Hint text */}
       <div className="text-center">
         <p className="text-xs text-muted-foreground">
-          💡 AI 正在运用物理知识为您生成详细解释...
+          💡 AI is applying physics knowledge to generate detailed explanation
+          for you...
         </p>
       </div>
     </div>

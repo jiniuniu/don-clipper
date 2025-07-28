@@ -63,7 +63,7 @@ export function MainContent({
           <ChatInput
             onSubmit={onAskQuestion}
             disabled={isGenerating}
-            placeholder="继续提问..."
+            placeholder="continue asking..."
           />
         </div>
       </div>

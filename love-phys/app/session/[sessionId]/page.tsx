@@ -105,14 +105,14 @@ export default function SessionDetailPage({ params }: SessionDetailPageProps) {
           <div className="flex h-14 items-center px-6">
             <h1 className="font-semibold">{APP_NAME}</h1>
             <span className="ml-4 text-sm text-muted-foreground">
-              正在加载会话...
+              loading sessions...
             </span>
           </div>
         </header>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>正在加载会话数据...</p>
+            <p>loading session data...</p>
           </div>
         </div>
       </>

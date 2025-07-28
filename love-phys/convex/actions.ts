@@ -17,7 +17,7 @@ export const generateExplanation = action({
       // 添加用户身份验证
       const identity = await ctx.auth.getUserIdentity();
       if (!identity) {
-        throw new Error("用户未登录");
+        throw new Error("user not signed in");
       }
 
       // 1. 验证 Session
@@ -26,7 +26,7 @@ export const generateExplanation = action({
 
       // 验证用户权限 - 适配 optional userId
       if (session.userId && session.userId !== identity.subject) {
-        throw new Error("无权限访问该会话");
+        throw new Error("unauthorized");
       }
 
       // 2. 检查是否已有相同问题的正在处理中的记录
@@ -102,7 +102,7 @@ export const generateExplanation = action({
 
       // 更新Session标题
       const shouldUpdateTitle =
-        question.length <= 50 && session.title === "新的物理探索";
+        question.length <= 50 && session.title === "new exploration";
       if (shouldUpdateTitle) {
         await ctx.runMutation(api.mutations.updateSession, {
           sessionId,
@@ -131,7 +131,7 @@ export const retryGeneration = action({
       // 添加用户身份验证
       const identity = await ctx.auth.getUserIdentity();
       if (!identity) {
-        throw new Error("用户未登录");
+        throw new Error("user not signed in");
       }
 
       // 获取原始问题

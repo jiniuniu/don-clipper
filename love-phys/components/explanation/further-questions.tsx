@@ -18,7 +18,7 @@ export function FurtherQuestions({
   return (
     <div className={`space-y-3 ${className}`}>
       <h3 className="text-base font-semibold flex items-center text-primary">
-        ❓ 继续探索
+        ❓ Continue Exploring
       </h3>
       <div className="grid gap-2 sm:grid-cols-1">
         {questions.map((question, index) => (

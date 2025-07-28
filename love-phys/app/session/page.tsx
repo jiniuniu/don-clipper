@@ -29,7 +29,7 @@ export default function SessionPage() {
           <div className="flex items-center">
             <h1 className="font-semibold">{APP_NAME}</h1>
             <span className="ml-4 text-sm text-muted-foreground">
-              选择一个会话或创建新会话开始探索
+              select a session or start new exploration
             </span>
           </div>
           <UserAvatar />

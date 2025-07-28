@@ -65,16 +65,16 @@ export function Sidebar({
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
-      return date.toLocaleTimeString("zh-CN", {
+      return date.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
       });
     } else if (diffDays === 1) {
-      return "昨天";
+      return "Yesterday";
     } else if (diffDays < 7) {
-      return `${diffDays}天前`;
+      return `${diffDays} days ago`;
     } else {
-      return date.toLocaleDateString("zh-CN", {
+      return date.toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
       });
@@ -89,31 +89,33 @@ export function Sidebar({
           className
         )}
       >
-        {/* Header - 固定高度 */}
+        {/* Header - Fixed height */}
         <div className="p-4 space-y-4 shrink-0">
           <div className="space-y-2">
-            <h2 className="text-lg font-semibold">对话历史</h2>
+            <h2 className="text-lg font-semibold">Conversation History</h2>
             <Button
               onClick={onNewSession}
               className="w-full justify-start"
               variant="outline"
             >
               <Plus className="mr-2 h-4 w-4" />
-              新对话
+              New Conversation
             </Button>
           </div>
           <Separator />
         </div>
 
-        {/* Sessions List - 可滚动区域 */}
+        {/* Sessions List - Scrollable area */}
         <div className="flex-1 overflow-hidden px-4 pb-4">
           <div className="h-full overflow-y-auto space-y-2 pr-2">
             {sessions.length === 0 ? (
               <div className="text-center py-8">
                 <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-sm text-muted-foreground">还没有对话记录</p>
+                <p className="text-sm text-muted-foreground">
+                  No conversation history yet
+                </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  点击新对话开始探索
+                  Click New Conversation to start exploring
                 </p>
               </div>
             ) : (
@@ -159,7 +161,7 @@ export function Sidebar({
                             onClick={(e) => handleDeleteClick(session, e)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            删除对话
+                            Delete Conversation
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -176,19 +178,20 @@ export function Sidebar({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除对话</AlertDialogTitle>
+            <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除对话&quot;{sessionToDelete?.title}&quot;
-              吗？此操作无法撤销，将永久删除该对话及其所有内容。
+              Are you sure you want to delete the conversation &quot;
+              {sessionToDelete?.title}&quot;? This action cannot be undone and
+              will permanently delete the conversation and all its contents.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              删除
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
