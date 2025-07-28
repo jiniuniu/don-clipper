@@ -58,29 +58,6 @@ export function Sidebar({
     setSessionToDelete(null);
   };
 
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffTime = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } else if (diffDays === 1) {
-      return "Yesterday";
-    } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
-    } else {
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
-    }
-  };
-
   return (
     <>
       <div
@@ -91,16 +68,24 @@ export function Sidebar({
       >
         {/* Header - Fixed height */}
         <div className="p-4 space-y-4 shrink-0">
+          {/* Logo */}
+          <div className="text-center pb-2">
+            <div className="text-2xl mb-2">🔬</div>
+            <h1 className="text-xl font-bold text-foreground">Love Physics</h1>
+          </div>
+
+          <Separator />
+
           <div className="space-y-2">
-            <h2 className="text-lg font-semibold">Conversation History</h2>
-            <Button
+            <div
               onClick={onNewSession}
-              className="w-full justify-start"
-              variant="outline"
+              className="w-full flex items-center justify-start p-3 rounded-lg cursor-pointer hover:bg-accent/50 transition-colors group"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              New Conversation
-            </Button>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                <Plus className="h-4 w-4 text-black" />
+              </div>
+              <span className="text-foreground font-medium">New chat</span>
+            </div>
           </div>
           <Separator />
         </div>
@@ -115,7 +100,7 @@ export function Sidebar({
                   No conversation history yet
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Click New Conversation to start exploring
+                  Click New chat to start exploring
                 </p>
               </div>
             ) : (
@@ -135,9 +120,6 @@ export function Sidebar({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate leading-5">
                           {session.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDate(session.updatedAt)}
                         </p>
                       </div>
                     </div>

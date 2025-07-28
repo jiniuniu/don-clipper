@@ -51,7 +51,7 @@ export function EmptyState({ onSubmit, disabled }: EmptyStateProps) {
           <QuestionInput
             onSubmit={onSubmit}
             disabled={disabled}
-            placeholder="描述一个你好奇的自然现象或生活现象..."
+            placeholder="Describe a natural or everyday phenomenon you're curious about..."
           />
         </div>
 

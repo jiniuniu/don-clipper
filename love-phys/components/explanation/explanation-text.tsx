@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import ReactMarkdown from "react-markdown";
 
 interface ExplanationTextProps {
   explanation: string;
@@ -16,10 +17,8 @@ export function ExplanationText({
       <h3 className="text-lg font-semibold flex items-center">
         🔍 Physics Principles
       </h3>
-      <div className="prose prose-sm max-w-none">
-        <p className="text-foreground leading-relaxed whitespace-pre-line">
-          {explanation}
-        </p>
+      <div className="prose prose-sm max-w-none dark:prose-invert">
+        <ReactMarkdown>{explanation}</ReactMarkdown>
       </div>
     </div>
   );

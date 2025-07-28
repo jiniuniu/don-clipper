@@ -15,7 +15,7 @@ interface QuestionInputProps {
 export function QuestionInput({
   onSubmit,
   disabled,
-  placeholder = "输入你的问题...",
+  placeholder = "Enter your question...",
   className,
 }: QuestionInputProps) {
   const [question, setQuestion] = useState("");
@@ -36,24 +36,23 @@ export function QuestionInput({
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`relative ${className}`}>
       <Textarea
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
-        className="min-h-[100px] text-lg resize-none"
+        className="min-h-[100px] text-lg resize-none pr-16 pb-16"
         autoFocus
       />
       <Button
         onClick={handleSubmit}
         disabled={disabled || !question.trim()}
-        size="lg"
-        className="w-full"
+        size="icon"
+        className="absolute bottom-3 right-3 h-10 w-10 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
       >
-        <Send className="mr-2 h-4 w-4" />
-        Start Exploring
+        <Send className="h-4 w-4" />
       </Button>
     </div>
   );
