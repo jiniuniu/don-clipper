@@ -29,13 +29,37 @@ export const generateExplanation = action({
         throw new Error("无权限访问该会话");
       }
 
-      // 2. 创建初始记录
+      // 2. 检查是否已有相同问题的正在处理中的记录
+      const existingExplanations = await ctx.runQuery(
+        api.queries.getSessionExplanations,
+        { sessionId }
+      );
+      const duplicateInProgress = existingExplanations.find(
+        (exp) =>
+          exp.question === question &&
+          (exp.status === "generating" ||
+            exp.status === "content_completed" ||
+            exp.status === "svg_generating")
+      );
+
+      if (duplicateInProgress) {
+        console.log(
+          "Duplicate request detected, returning existing explanation ID"
+        );
+        return {
+          sessionId,
+          explanationId: duplicateInProgress._id,
+          success: true,
+        };
+      }
+
+      // 3. 创建初始记录
       explanationId = await ctx.runMutation(api.mutations.createExplanation, {
         sessionId,
         question,
       });
 
-      // 3. 构建对话历史
+      // 4. 构建对话历史
       const conversationHistory = await buildConversationHistory(
         ctx,
         sessionId

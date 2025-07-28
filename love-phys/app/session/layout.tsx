@@ -2,7 +2,7 @@
 
 import { usePhysics } from "@/hooks/use-physics";
 import { Sidebar } from "@/components/layout/sidebar";
-import { useRouter, usePathname } from "next/navigation"; // 添加 usePathname
+import { useRouter, usePathname } from "next/navigation";
 
 interface SessionLayoutProps {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ interface SessionLayoutProps {
 
 export default function SessionLayout({ children }: SessionLayoutProps) {
   const router = useRouter();
-  const pathname = usePathname(); // 使用 Next.js hook
+  const pathname = usePathname();
   const { sessions, deleteSession } = usePhysics();
 
   // 从路径中提取 sessionId
@@ -28,32 +28,50 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
     try {
       const isCurrentSession = pathname === `/session/${sessionId}`;
 
-      // 如果要删除当前会话，先计算跳转目标
-      let redirectTarget = null;
+      console.log("Deleting session:", sessionId);
+      console.log("Is current session:", isCurrentSession);
+      console.log("Current pathname:", pathname);
+      console.log("Current sessions count:", sessions.length);
+
+      // 先计算跳转目标（在删除之前）
+      let redirectTarget: string | null = null;
+
       if (isCurrentSession) {
-        const otherSessions = sessions.filter((s) => s._id !== sessionId);
-        redirectTarget =
-          otherSessions.length > 0
-            ? `/session/${otherSessions[0]._id}`
-            : "/session";
+        // 计算删除后剩余的会话
+        const remainingSessions = sessions.filter((s) => s._id !== sessionId);
+
+        if (remainingSessions.length > 0) {
+          // 还有其他会话，跳转到最新的一个（按 updatedAt 排序）
+          const sortedSessions = remainingSessions.sort(
+            (a, b) => b.updatedAt - a.updatedAt
+          );
+          redirectTarget = `/session/${sortedSessions[0]._id}`;
+        } else {
+          // 没有其他会话了，跳转到主页
+          redirectTarget = "/session";
+        }
+
+        console.log("Calculated redirect target:", redirectTarget);
       }
 
-      // 执行删除
+      // 执行删除操作
       await deleteSession(sessionId);
 
-      // 执行跳转
+      // 如果需要跳转，立即执行
       if (redirectTarget) {
-        router.replace(redirectTarget); // 使用 replace 而不是 push
+        console.log("Executing redirect to:", redirectTarget);
+        router.replace(redirectTarget);
       }
     } catch (error) {
       console.error("Failed to delete session:", error);
     }
   };
+
   return (
     <div className="flex h-screen">
       <Sidebar
         sessions={sessions}
-        activeSessionId={activeSessionId} // 传入从路径提取的 sessionId
+        activeSessionId={activeSessionId}
         onSessionSelect={handleSessionSelect}
         onNewSession={handleNewSession}
         onDeleteSession={handleDeleteSession}

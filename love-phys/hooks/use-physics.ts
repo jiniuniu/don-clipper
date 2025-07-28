@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useAction } from "convex/react";
+import { useCallback } from "react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { Session, Explanation } from "@/types";
@@ -58,25 +59,28 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
   // 检查是否正在生成
   const isGenerating = explanations.some((exp) => exp.status === "generating");
 
-  // 提问 - 只在当前会话中提问
-  const askQuestion = async (question: string) => {
-    if (!sessionId) {
-      throw new Error("Cannot ask question without a session");
-    }
+  // 提问 - 使用 useCallback 稳定引用
+  const askQuestion = useCallback(
+    async (question: string) => {
+      if (!sessionId) {
+        throw new Error("Cannot ask question without a session");
+      }
 
-    try {
-      await generateExplanation({
-        question,
-        sessionId: sessionId as Id<"sessions">,
-      });
-    } catch (error) {
-      console.error("Failed to ask question:", error);
-      throw error;
-    }
-  };
+      try {
+        await generateExplanation({
+          question,
+          sessionId: sessionId as Id<"sessions">,
+        });
+      } catch (error) {
+        console.error("Failed to ask question:", error);
+        throw error;
+      }
+    },
+    [sessionId, generateExplanation]
+  );
 
-  // 创建新会话
-  const createNewSession = async (): Promise<string> => {
+  // 创建新会话 - 使用 useCallback
+  const createNewSession = useCallback(async (): Promise<string> => {
     try {
       const newSessionId = await createSessionMutation({
         title: "新的物理探索",
@@ -86,31 +90,37 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
       console.error("Failed to create new session:", error);
       throw error;
     }
-  };
+  }, [createSessionMutation]);
 
-  // 删除会话
-  const deleteSession = async (sessionIdToDelete: string) => {
-    try {
-      await deleteSessionMutation({
-        sessionId: sessionIdToDelete as Id<"sessions">,
-      });
-    } catch (error) {
-      console.error("Failed to delete session:", error);
-      throw error;
-    }
-  };
+  // 删除会话 - 使用 useCallback
+  const deleteSession = useCallback(
+    async (sessionIdToDelete: string) => {
+      try {
+        await deleteSessionMutation({
+          sessionId: sessionIdToDelete as Id<"sessions">,
+        });
+      } catch (error) {
+        console.error("Failed to delete session:", error);
+        throw error;
+      }
+    },
+    [deleteSessionMutation]
+  );
 
-  // 重试生成
-  const retryGeneration = async (explanationId: string) => {
-    try {
-      await retryGenerationAction({
-        explanationId: explanationId as Id<"explanations">,
-      });
-    } catch (error) {
-      console.error("Failed to retry generation:", error);
-      throw error;
-    }
-  };
+  // 重试生成 - 使用 useCallback
+  const retryGeneration = useCallback(
+    async (explanationId: string) => {
+      try {
+        await retryGenerationAction({
+          explanationId: explanationId as Id<"explanations">,
+        });
+      } catch (error) {
+        console.error("Failed to retry generation:", error);
+        throw error;
+      }
+    },
+    [retryGenerationAction]
+  );
 
   return {
     sessions,
