@@ -1,32 +1,28 @@
 "use client";
 
-import React from "react";
-import { Brain, Lightbulb, Image, CheckCircle, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Brain, Image, CheckCircle, Loader2, Clock } from "lucide-react";
 
 interface LoadingExplanationProps {
   status: "generating" | "content_completed" | "svg_generating";
   className?: string;
 }
 
-// 定义三个真实的步骤
+// 定义两个主要步骤，包含预计时间
 const LOADING_PHASES = [
   {
     key: "generating",
     icon: Brain,
-    title: "分析物理现象",
-    description: "理解问题背后的物理原理...",
-  },
-  {
-    key: "content_completed",
-    icon: Lightbulb,
-    title: "生成原理解释",
-    description: "整理物理概念和相关现象...",
+    title: "生成物理解释",
+    description: "分析物理现象并生成详细解释...",
+    estimatedTime: "30-60秒",
   },
   {
     key: "svg_generating",
     icon: Image,
     title: "绘制演示图示",
     description: "根据解释生成可视化图表...",
+    estimatedTime: "1-2分钟",
   },
 ] as const;
 
@@ -34,35 +30,63 @@ export function LoadingExplanation({
   status,
   className,
 }: LoadingExplanationProps) {
+  const [startTime] = useState(() => Date.now());
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [phaseStartTimes, setPhaseStartTimes] = useState<
+    Record<string, number>
+  >({});
+
   // 根据状态确定当前阶段
   const statusToPhaseMap = {
     generating: 0,
-    content_completed: 1,
-    svg_generating: 2,
+    content_completed: 0, // 内容完成仍显示第一阶段
+    svg_generating: 1,
   };
 
   const currentPhaseIndex = statusToPhaseMap[status];
   const currentPhase = LOADING_PHASES[currentPhaseIndex];
   const CurrentIcon = currentPhase?.icon || Loader2;
 
+  // 记录每个阶段的开始时间
+  useEffect(() => {
+    if (currentPhase && !phaseStartTimes[currentPhase.key]) {
+      setPhaseStartTimes((prev) => ({
+        ...prev,
+        [currentPhase.key]: Date.now(),
+      }));
+    }
+  }, [status, currentPhase, phaseStartTimes]);
+
+  // 更新总执行时间
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTime(Date.now() - startTime);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [startTime]);
+
+  // 格式化时间显示
+  const formatTime = (ms: number) => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    if (minutes > 0) {
+      return `${minutes}分${remainingSeconds}秒`;
+    }
+    return `${remainingSeconds}秒`;
+  };
+
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* 主要状态显示 */}
-      <div className="text-center py-8">
-        <div className="relative mb-6">
-          <CurrentIcon className="h-12 w-12 animate-spin mx-auto text-primary" />
-          {/* 脉冲效果 */}
-          <div className="absolute inset-0 h-12 w-12 mx-auto rounded-full bg-primary/20 animate-ping" />
-        </div>
-
-        <h3 className="text-lg font-medium mb-2">正在生成物理解释</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          {currentPhase?.description || "正在处理中..."}
-        </p>
-
-        {/* 简单的步骤指示 */}
-        <div className="text-xs text-muted-foreground">
-          步骤 {currentPhaseIndex + 1} / {LOADING_PHASES.length}
+      {/* 执行时间显示 */}
+      <div className="flex justify-center">
+        <div className="flex items-center space-x-2 px-3 py-1 bg-blue-50 rounded-full">
+          <Clock className="h-4 w-4 text-blue-600" />
+          <span className="text-blue-700 text-sm">
+            已用时: {formatTime(elapsedTime)}
+          </span>
         </div>
       </div>
 
@@ -186,9 +210,18 @@ export function LoadingExplanation({
             {currentPhase?.title}
           </span>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground mb-2">
           {currentPhase?.description}
         </p>
+
+        {/* 特别提示图表生成时间 */}
+        {status === "svg_generating" && (
+          <div className="mt-2 p-2 bg-amber-50 rounded border border-amber-200">
+            <p className="text-xs text-amber-700">
+              ⏰ 图表生成需要1-2分钟，请耐心等待
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 提示文本 */}
