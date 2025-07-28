@@ -14,9 +14,20 @@ export const generateExplanation = action({
   handler: async (ctx, { sessionId, question }): Promise<any> => {
     let explanationId: Id<"explanations"> | undefined;
     try {
+      // 添加用户身份验证
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        throw new Error("用户未登录");
+      }
+
       // 1. 验证 Session
       const session = await ctx.runQuery(api.queries.getSession, { sessionId });
       if (!session) throw new Error("Session not found");
+
+      // 验证用户权限 - 适配 optional userId
+      if (session.userId && session.userId !== identity.subject) {
+        throw new Error("无权限访问该会话");
+      }
 
       // 2. 创建初始记录
       explanationId = await ctx.runMutation(api.mutations.createExplanation, {
@@ -93,6 +104,12 @@ export const retryGeneration = action({
   args: { explanationId: v.id("explanations") },
   handler: async (ctx, { explanationId }) => {
     try {
+      // 添加用户身份验证
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        throw new Error("用户未登录");
+      }
+
       // 获取原始问题
       const explanation = await ctx.runQuery(api.queries.getExplanation, {
         explanationId,
@@ -101,6 +118,8 @@ export const retryGeneration = action({
       if (!explanation) {
         throw new Error("Explanation not found");
       }
+
+      // 通过 getExplanation 查询已经包含了权限验证，所以这里不需要额外验证
 
       // 重置状态为 generating
       await ctx.runMutation(api.mutations.updateExplanation, {

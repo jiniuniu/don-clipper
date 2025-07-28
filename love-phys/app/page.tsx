@@ -3,16 +3,41 @@
 import { Button } from "@/components/ui/button";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { useEffect } from "react";
 
 export default function HomePage() {
   const router = useRouter();
+  const { isSignedIn, isLoaded } = useUser();
+
+  // 如果已登录，自动跳转到 /session
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.push("/session");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   const handleGetStarted = () => {
+    // 未登录时跳转到 /session，中间件会处理登录
     router.push("/session");
   };
 
+  // 加载中状态
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>正在加载...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 已登录会自动跳转，这里主要是未登录状态的展示
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      {/* 现有的页面内容保持不变 */}
       <div className="max-w-4xl mx-auto text-center px-6">
         {/* Hero Section */}
         <div className="space-y-8">

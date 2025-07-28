@@ -4,9 +4,10 @@ import { v } from "convex/values";
 export default defineSchema({
   sessions: defineTable({
     title: v.string(),
+    userId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }),
+  }).index("by_user", ["userId"]),
 
   explanations: defineTable({
     sessionId: v.id("sessions"),

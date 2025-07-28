@@ -4,9 +4,15 @@ import { v } from "convex/values";
 export const createSession = mutation({
   args: { title: v.string() },
   handler: async (ctx, { title }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("用户未登录");
+    }
+
     const now = Date.now();
     const sessionId = await ctx.db.insert("sessions", {
       title,
+      userId: identity.subject, // 新session直接添加当前用户ID
       createdAt: now,
       updatedAt: now,
     });
@@ -20,9 +26,29 @@ export const updateSession = mutation({
     title: v.optional(v.string()),
   },
   handler: async (ctx, { sessionId, title }) => {
-    const updates: { updatedAt: number; title?: string } = {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("用户未登录");
+    }
+
+    // 验证用户权限
+    const session = await ctx.db.get(sessionId);
+    if (!session) {
+      throw new Error("会话不存在");
+    }
+    // 只有当session有userId时才验证权限
+    if (session.userId && session.userId !== identity.subject) {
+      throw new Error("无权限修改该会话");
+    }
+
+    const updates: { updatedAt: number; title?: string; userId?: string } = {
       updatedAt: Date.now(),
     };
+
+    // 如果session还没有userId，现在添加上
+    if (!session.userId) {
+      updates.userId = identity.subject;
+    }
 
     if (title !== undefined) {
       updates.title = title;
@@ -38,6 +64,29 @@ export const createExplanation = mutation({
     question: v.string(),
   },
   handler: async (ctx, { sessionId, question }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("用户未登录");
+    }
+
+    // 验证用户权限
+    const session = await ctx.db.get(sessionId);
+    if (!session) {
+      throw new Error("会话不存在");
+    }
+    // 只有当session有userId时才验证权限
+    if (session.userId && session.userId !== identity.subject) {
+      throw new Error("无权限在该会话中提问");
+    }
+
+    // 如果session还没有userId，现在添加上
+    if (!session.userId) {
+      await ctx.db.patch(sessionId, {
+        userId: identity.subject,
+        updatedAt: Date.now(),
+      });
+    }
+
     const explanationId = await ctx.db.insert("explanations", {
       sessionId,
       question,
@@ -58,14 +107,34 @@ export const updateExplanation = mutation({
     status: v.optional(
       v.union(
         v.literal("generating"),
-        v.literal("content_completed"), // 新增
-        v.literal("svg_generating"), // 新增
+        v.literal("content_completed"),
+        v.literal("svg_generating"),
         v.literal("completed"),
         v.literal("failed")
       )
     ),
   },
   handler: async (ctx, { explanationId, ...updates }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("用户未登录");
+    }
+
+    // 验证用户权限
+    const explanation = await ctx.db.get(explanationId);
+    if (!explanation) {
+      throw new Error("解释不存在");
+    }
+
+    const session = await ctx.db.get(explanation.sessionId);
+    if (!session) {
+      throw new Error("会话不存在");
+    }
+    // 只有当session有userId时才验证权限
+    if (session.userId && session.userId !== identity.subject) {
+      throw new Error("无权限修改该解释");
+    }
+
     await ctx.db.patch(explanationId, updates);
   },
 });
@@ -73,6 +142,21 @@ export const updateExplanation = mutation({
 export const deleteSession = mutation({
   args: { sessionId: v.id("sessions") },
   handler: async (ctx, { sessionId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("用户未登录");
+    }
+
+    // 验证用户权限
+    const session = await ctx.db.get(sessionId);
+    if (!session) {
+      throw new Error("会话不存在");
+    }
+    // 只有当session有userId时才验证权限
+    if (session.userId && session.userId !== identity.subject) {
+      throw new Error("无权限删除该会话");
+    }
+
     // 删除 session 下的所有 explanations
     const explanations = await ctx.db
       .query("explanations")

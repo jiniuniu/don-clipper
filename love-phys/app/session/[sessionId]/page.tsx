@@ -6,6 +6,7 @@ import { APP_NAME } from "@/lib/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { notFound } from "next/navigation";
+import { UserAvatar } from "@/components/layout/user-avatar";
 import { use } from "react";
 
 interface SessionDetailPageProps {
@@ -101,13 +102,16 @@ export default function SessionDetailPage({ params }: SessionDetailPageProps) {
     <>
       {/* 顶部标题栏 */}
       <header className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center px-6">
-          <h1 className="font-semibold">{APP_NAME}</h1>
-          {currentSession && (
-            <span className="ml-4 text-sm text-muted-foreground truncate max-w-md">
-              {currentSession.title}
-            </span>
-          )}
+        <div className="flex h-14 items-center justify-between px-6">
+          <div className="flex items-center">
+            <h1 className="font-semibold">{APP_NAME}</h1>
+            {currentSession && (
+              <span className="ml-4 text-sm text-muted-foreground truncate max-w-md">
+                {currentSession.title}
+              </span>
+            )}
+          </div>
+          <UserAvatar />
         </div>
       </header>
 

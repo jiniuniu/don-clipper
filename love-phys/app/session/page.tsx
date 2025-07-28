@@ -4,6 +4,7 @@ import { usePhysics } from "@/hooks/use-physics";
 import { EmptyState } from "@/components/input/empty-state";
 import { APP_NAME } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+import { UserAvatar } from "@/components/layout/user-avatar";
 
 export default function SessionPage() {
   const router = useRouter();
@@ -24,11 +25,14 @@ export default function SessionPage() {
     <>
       {/* 顶部标题栏 */}
       <header className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center px-6">
-          <h1 className="font-semibold">{APP_NAME}</h1>
-          <span className="ml-4 text-sm text-muted-foreground">
-            选择一个会话或创建新会话开始探索
-          </span>
+        <div className="flex h-14 items-center justify-between px-6">
+          <div className="flex items-center">
+            <h1 className="font-semibold">{APP_NAME}</h1>
+            <span className="ml-4 text-sm text-muted-foreground">
+              选择一个会话或创建新会话开始探索
+            </span>
+          </div>
+          <UserAvatar />
         </div>
       </header>
 
