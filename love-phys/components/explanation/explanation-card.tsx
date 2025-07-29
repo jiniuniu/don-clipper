@@ -1,6 +1,7 @@
+// components/explanation/explanation-card.tsx - 修复版本
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Explanation } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SVGDisplay } from "./svg-display";
@@ -10,6 +11,8 @@ import { FurtherQuestions } from "./further-questions";
 import { LoadingExplanation } from "./loading-status";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, AlertCircle, Clock } from "lucide-react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 interface ExplanationCardProps {
   explanation: Explanation;
@@ -22,11 +25,31 @@ export function ExplanationCard({
   onQuestionClick,
   onRetry,
 }: ExplanationCardProps) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Convex mutation for updating explanation
+  const updateExplanation = useMutation(api.mutations.updateExplanation);
+
   const formatTime = (timestamp: number) => {
     return new Date(timestamp).toLocaleTimeString("zh-CN", {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // SVG 保存功能 - 所有用户都可以使用
+  const handleSvgSave = async (newSvgCode: string) => {
+    setIsSaving(true);
+    try {
+      await updateExplanation({
+        explanationId: explanation._id,
+        svgCode: newSvgCode,
+      });
+    } catch (error) {
+      console.error("Failed to save SVG updates:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (
@@ -95,7 +118,7 @@ export function ExplanationCard({
     );
   }
 
-  // 成功状态
+  // 成功状态 - 所有用户都可以编辑 SVG
   return (
     <Card className="transition-all duration-200 hover:shadow-md">
       <CardHeader className="pb-4">
@@ -107,12 +130,16 @@ export function ExplanationCard({
           </span>
         </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-6">
-        {/* SVG 图示 */}
+        {/* SVG 图示 - 带编辑功能 */}
         {explanation.svgCode && (
           <SVGDisplay
             svgCode={explanation.svgCode}
             title={explanation.question}
+            editable={true} // 启用编辑功能
+            onSave={handleSvgSave}
+            isSaving={isSaving}
           />
         )}
 

@@ -83,7 +83,7 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
   const createNewSession = useCallback(async (): Promise<string> => {
     try {
       const newSessionId = await createSessionMutation({
-        title: "新的物理探索",
+        title: "new exploration",
       });
       return newSessionId;
     } catch (error) {

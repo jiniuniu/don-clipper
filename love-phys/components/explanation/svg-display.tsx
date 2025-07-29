@@ -1,23 +1,99 @@
+// components/explanation/svg-display.tsx - 添加代码高亮
 "use client";
 
-import React, { useState } from "react";
-import { AlertCircle, Maximize2, Minimize2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  AlertCircle,
+  Maximize2,
+  Minimize2,
+  Edit3,
+  Save,
+  RotateCcw,
+  Copy,
+  Eye,
+  Code,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { formatSVGCode } from "@/lib/svg-formatter";
 
 interface SVGDisplayProps {
   svgCode: string;
   title: string;
+  editable?: boolean;
+  onSave?: (newSvgCode: string) => void;
+  isSaving?: boolean;
   className?: string;
 }
 
-export function SVGDisplay({ svgCode, title, className }: SVGDisplayProps) {
+export function SVGDisplay({
+  svgCode,
+  title,
+  editable = false,
+  onSave,
+  isSaving = false,
+  className,
+}: SVGDisplayProps) {
   const [hasError, setHasError] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [localSvgCode, setLocalSvgCode] = useState(svgCode);
+  const [formattedCode, setFormattedCode] = useState("");
+
+  // 检查是否有未保存的更改
+  const hasChanges = localSvgCode !== svgCode;
+
+  // 格式化代码用于显示
+  useEffect(() => {
+    const formatted = formatSVGCode(localSvgCode);
+    setFormattedCode(formatted);
+  }, [localSvgCode]);
 
   // 简单的 SVG 验证
   const isSVGValid =
-    svgCode.trim().startsWith("<svg") && svgCode.trim().endsWith("</svg>");
+    localSvgCode.trim().startsWith("<svg") &&
+    localSvgCode.trim().endsWith("</svg>");
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const handleSave = async () => {
+    if (onSave && hasChanges) {
+      await onSave(localSvgCode);
+    }
+  };
+
+  const handleReset = () => {
+    setLocalSvgCode(svgCode);
+  };
+
+  const handleFormat = () => {
+    const formatted = formatSVGCode(localSvgCode);
+    setLocalSvgCode(formatted);
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(formattedCode || localSvgCode);
+  };
+
+  const toggleEdit = () => {
+    if (isEditing && hasChanges) {
+      // 如果有未保存的更改，提示用户
+      if (confirm("You have unsaved changes. Do you want to save them?")) {
+        handleSave();
+      } else {
+        handleReset();
+      }
+    }
+    setIsEditing(!isEditing);
+  };
 
   if (!isSVGValid || hasError) {
     return (
@@ -34,26 +110,218 @@ export function SVGDisplay({ svgCode, title, className }: SVGDisplayProps) {
         <p className="text-sm text-muted-foreground/70 mt-1">
           SVG code format error or rendering failed
         </p>
+        {editable && (
+          <Button
+            variant="outline"
+            onClick={() => setIsEditing(true)}
+            className="mt-4"
+          >
+            <Edit3 className="h-4 w-4 mr-2" />
+            Fix SVG Code
+          </Button>
+        )}
       </div>
     );
   }
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
+  const renderContent = () => {
+    if (editable && isEditing) {
+      return (
+        <div className="space-y-4">
+          {/* 编辑状态指示器 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                <Edit3 className="h-3 w-3 mr-1" />
+                Editing Mode
+              </Badge>
+              {hasChanges && (
+                <Badge
+                  variant="outline"
+                  className="bg-orange-100 text-orange-800 border-orange-300"
+                >
+                  📝 Unsaved Changes
+                </Badge>
+              )}
+            </div>
+          </div>
 
-  return (
-    <>
-      <div className={cn("relative group", className)}>
+          {/* Tab 切换 */}
+          <Tabs defaultValue="preview" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="preview" className="flex items-center">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
+              </TabsTrigger>
+              <TabsTrigger value="view-code" className="flex items-center">
+                <Code className="h-4 w-4 mr-2" />
+                View Code
+              </TabsTrigger>
+              <TabsTrigger value="edit-code" className="flex items-center">
+                <Edit3 className="h-4 w-4 mr-2" />
+                Edit Code
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="preview" className="mt-4">
+              <div className="bg-white rounded-lg border overflow-hidden shadow-sm min-h-[300px] flex items-center justify-center">
+                {localSvgCode ? (
+                  <div
+                    className="w-full max-h-[400px] overflow-hidden flex items-center justify-center p-4"
+                    dangerouslySetInnerHTML={{ __html: localSvgCode }}
+                    onError={() => setHasError(true)}
+                  />
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <Code className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No SVG code to preview</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="view-code" className="mt-4">
+              <div className="relative">
+                <div className="absolute top-2 right-2 z-10">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopy}
+                    className="h-7 px-2 bg-background/80 backdrop-blur"
+                  >
+                    <Copy className="h-3 w-3 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+                <div className="rounded-lg overflow-hidden border">
+                  <SyntaxHighlighter
+                    language="xml"
+                    style={oneLight}
+                    customStyle={{
+                      margin: 0,
+                      fontSize: "12px",
+                      maxHeight: "400px",
+                      minHeight: "300px",
+                    }}
+                    showLineNumbers={true}
+                    wrapLines={true}
+                  >
+                    {formattedCode ||
+                      localSvgCode ||
+                      "<!-- No SVG code available -->"}
+                  </SyntaxHighlighter>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="edit-code" className="mt-4">
+              <div className="space-y-3">
+                {/* 代码编辑工具栏 */}
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-muted-foreground">
+                    💡 Tip: Use viewBox for responsive design. Switch to Preview
+                    tab to see changes.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleFormat}
+                      className="h-7 px-2"
+                      title="Format code"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Format
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCopy}
+                      className="h-7 px-2"
+                    >
+                      <Copy className="h-3 w-3 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 代码编辑区 */}
+                <Textarea
+                  value={localSvgCode}
+                  onChange={(e) => setLocalSvgCode(e.target.value)}
+                  className="font-mono text-xs min-h-[300px] max-h-[500px] resize-y"
+                  placeholder="<svg viewBox='0 0 800 400' xmlns='http://www.w3.org/2000/svg'>
+  <!-- Your SVG content here -->
+</svg>"
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {/* 编辑操作按钮 */}
+          <div className="flex justify-between pt-2 border-t">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={!hasChanges || isSaving}
+                size="sm"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset
+              </Button>
+              <Button variant="outline" onClick={toggleEdit} size="sm">
+                Cancel
+              </Button>
+            </div>
+
+            <Button
+              onClick={handleSave}
+              disabled={!hasChanges || isSaving}
+              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+            >
+              {isSaving ? (
+                <>
+                  <RotateCcw className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // 正常显示模式
+    return (
+      <div className="relative group">
         {/* SVG 容器 */}
         <div className="bg-white rounded-lg border overflow-hidden shadow-sm">
           {/* 控制栏 */}
-          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+            {editable && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={toggleEdit}
+                className="h-8 w-8 p-0 bg-background/80 backdrop-blur"
+                title="Edit SVG"
+              >
+                <Edit3 className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="secondary"
               size="sm"
               onClick={toggleFullscreen}
               className="h-8 w-8 p-0 bg-background/80 backdrop-blur"
+              title="Fullscreen"
             >
               <Maximize2 className="h-4 w-4" />
             </Button>
@@ -72,6 +340,12 @@ export function SVGDisplay({ svgCode, title, className }: SVGDisplayProps) {
           📊 {title}
         </p>
       </div>
+    );
+  };
+
+  return (
+    <>
+      <div className={cn("relative", className)}>{renderContent()}</div>
 
       {/* 全屏模态框 */}
       {isFullscreen && (
