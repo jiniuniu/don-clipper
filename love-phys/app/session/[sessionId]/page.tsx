@@ -2,11 +2,9 @@
 
 import { usePhysics } from "@/hooks/use-physics";
 import { MainContent } from "@/components/layout/main-content";
-import { APP_NAME } from "@/lib/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { notFound } from "next/navigation";
-import { UserAvatar } from "@/components/layout/user-avatar";
 import { use } from "react";
 
 interface SessionDetailPageProps {
@@ -101,14 +99,6 @@ export default function SessionDetailPage({ params }: SessionDetailPageProps) {
   if (isLoadingSessions || isLoadingCurrentSession) {
     return (
       <>
-        <header className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 items-center px-6">
-            <h1 className="font-semibold">{APP_NAME}</h1>
-            <span className="ml-4 text-sm text-muted-foreground">
-              loading sessions...
-            </span>
-          </div>
-        </header>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -121,21 +111,6 @@ export default function SessionDetailPage({ params }: SessionDetailPageProps) {
 
   return (
     <>
-      {/* 顶部标题栏 */}
-      <header className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center justify-between px-6">
-          <div className="flex items-center">
-            <h1 className="font-semibold">{APP_NAME}</h1>
-            {currentSession && (
-              <span className="ml-4 text-sm text-muted-foreground truncate max-w-md">
-                {currentSession.title}
-              </span>
-            )}
-          </div>
-          <UserAvatar />
-        </div>
-      </header>
-
       {/* 主要内容 */}
       <MainContent
         explanations={explanations}

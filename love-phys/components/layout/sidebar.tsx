@@ -68,14 +68,6 @@ export function Sidebar({
       >
         {/* Header - Fixed height */}
         <div className="p-4 space-y-4 shrink-0">
-          {/* Logo */}
-          <div className="text-center pb-2">
-            <div className="text-2xl mb-2">🔬</div>
-            <h1 className="text-xl font-bold text-foreground">Love Physics</h1>
-          </div>
-
-          <Separator />
-
           <div className="space-y-2">
             <div
               onClick={onNewSession}

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ConvexProvider from "./convex-provider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { TopBar } from "@/components/layout/top-bar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,7 +33,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ClerkProvider>
-          <ConvexProvider>{children}</ConvexProvider>
+          <ConvexProvider>
+            <div className="min-h-screen flex flex-col">
+              <TopBar />
+              <main className="flex-1">{children}</main>
+            </div>
+          </ConvexProvider>
         </ClerkProvider>
       </body>
     </html>

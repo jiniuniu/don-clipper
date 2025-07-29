@@ -1,4 +1,4 @@
-// components/explanation/svg-display.tsx - 添加代码高亮
+// components/explanation/svg-display.tsx - 添加 admin 权限控制
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import {
   Eye,
   Code,
   Sparkles,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { formatSVGCode } from "@/lib/svg-formatter";
+import { useAdmin } from "@/hooks/use-admin";
 
 interface SVGDisplayProps {
   svgCode: string;
@@ -30,6 +32,7 @@ interface SVGDisplayProps {
   onSave?: (newSvgCode: string) => void;
   isSaving?: boolean;
   className?: string;
+  requireAdmin?: boolean; // 新增：是否需要管理员权限
 }
 
 export function SVGDisplay({
@@ -39,6 +42,7 @@ export function SVGDisplay({
   onSave,
   isSaving = false,
   className,
+  requireAdmin = false, // 默认不需要管理员权限
 }: SVGDisplayProps) {
   const [hasError, setHasError] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -46,8 +50,14 @@ export function SVGDisplay({
   const [localSvgCode, setLocalSvgCode] = useState(svgCode);
   const [formattedCode, setFormattedCode] = useState("");
 
+  // 获取管理员状态
+  const { isAdmin, isLoaded } = useAdmin();
+
   // 检查是否有未保存的更改
   const hasChanges = localSvgCode !== svgCode;
+
+  // 检查是否可以编辑（需要管理员权限时）
+  const canEdit = editable && (!requireAdmin || isAdmin);
 
   // 格式化代码用于显示
   useEffect(() => {
@@ -65,7 +75,7 @@ export function SVGDisplay({
   };
 
   const handleSave = async () => {
-    if (onSave && hasChanges) {
+    if (onSave && hasChanges && canEdit) {
       await onSave(localSvgCode);
     }
   };
@@ -84,6 +94,11 @@ export function SVGDisplay({
   };
 
   const toggleEdit = () => {
+    // 检查权限
+    if (!canEdit) {
+      return;
+    }
+
     if (isEditing && hasChanges) {
       // 如果有未保存的更改，提示用户
       if (confirm("You have unsaved changes. Do you want to save them?")) {
@@ -94,6 +109,21 @@ export function SVGDisplay({
     }
     setIsEditing(!isEditing);
   };
+
+  // 如果需要加载权限信息，显示加载状态
+  if (requireAdmin && !isLoaded) {
+    return (
+      <div
+        className={cn(
+          "bg-muted rounded-lg p-8 text-center border-2 border-dashed",
+          className
+        )}
+      >
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground font-medium">Loading...</p>
+      </div>
+    );
+  }
 
   if (!isSVGValid || hasError) {
     return (
@@ -110,7 +140,7 @@ export function SVGDisplay({
         <p className="text-sm text-muted-foreground/70 mt-1">
           SVG code format error or rendering failed
         </p>
-        {editable && (
+        {canEdit && (
           <Button
             variant="outline"
             onClick={() => setIsEditing(true)}
@@ -125,7 +155,7 @@ export function SVGDisplay({
   }
 
   const renderContent = () => {
-    if (editable && isEditing) {
+    if (canEdit && isEditing) {
       return (
         <div className="space-y-4">
           {/* 编辑状态指示器 */}
@@ -135,6 +165,15 @@ export function SVGDisplay({
                 <Edit3 className="h-3 w-3 mr-1" />
                 Editing Mode
               </Badge>
+              {isAdmin && requireAdmin && (
+                <Badge
+                  variant="outline"
+                  className="bg-green-100 text-green-800 border-green-300"
+                >
+                  <Shield className="h-3 w-3 mr-1" />
+                  Admin
+                </Badge>
+              )}
               {hasChanges && (
                 <Badge
                   variant="outline"
@@ -305,15 +344,27 @@ export function SVGDisplay({
         <div className="bg-white rounded-lg border overflow-hidden shadow-sm">
           {/* 控制栏 */}
           <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-            {editable && (
+            {canEdit && (
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={toggleEdit}
                 className="h-8 w-8 p-0 bg-background/80 backdrop-blur"
-                title="Edit SVG"
+                title={`Edit SVG${requireAdmin ? " (Admin Only)" : ""}`}
               >
                 <Edit3 className="h-4 w-4" />
+              </Button>
+            )}
+            {/* 如果需要管理员权限但用户不是管理员，显示禁用的编辑按钮 */}
+            {editable && requireAdmin && !isAdmin && (
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled
+                className="h-8 w-8 p-0 bg-background/80 backdrop-blur opacity-50"
+                title="Admin Only"
+              >
+                <Shield className="h-4 w-4" />
               </Button>
             )}
             <Button
@@ -336,9 +387,20 @@ export function SVGDisplay({
         </div>
 
         {/* 标题 */}
-        <p className="text-xs text-muted-foreground mt-2 text-center">
-          📊 {title}
-        </p>
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <p className="text-xs text-muted-foreground text-center">
+            📊 {title}
+          </p>
+          {requireAdmin && isAdmin && (
+            <Badge
+              variant="outline"
+              className="text-xs bg-green-100 text-green-800 border-green-300"
+            >
+              <Shield className="h-2 w-2 mr-1" />
+              Admin
+            </Badge>
+          )}
+        </div>
       </div>
     );
   };
@@ -373,7 +435,18 @@ export function SVGDisplay({
               </div>
 
               {/* 全屏标题 */}
-              <p className="text-center mt-4 text-lg font-medium">📊 {title}</p>
+              <div className="flex items-center justify-center gap-2 mt-4">
+                <p className="text-center text-lg font-medium">📊 {title}</p>
+                {requireAdmin && isAdmin && (
+                  <Badge
+                    variant="outline"
+                    className="bg-green-100 text-green-800 border-green-300"
+                  >
+                    <Shield className="h-3 w-3 mr-1" />
+                    Admin
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -139,6 +139,7 @@ export function ExplanationCard({
             title={explanation.question}
             editable={true} // 启用编辑功能
             onSave={handleSvgSave}
+            requireAdmin={true}
             isSaving={isSaving}
           />
         )}

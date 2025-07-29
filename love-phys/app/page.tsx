@@ -4,18 +4,10 @@ import { Button } from "@/components/ui/button";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useEffect } from "react";
 
 export default function HomePage() {
   const router = useRouter();
-  const { isSignedIn, isLoaded } = useUser();
-
-  // If already logged in, automatically redirect to /session
-  useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.push("/session");
-    }
-  }, [isLoaded, isSignedIn, router]);
+  const { isLoaded } = useUser();
 
   const handleGetStarted = () => {
     // When not logged in, redirect to /session, middleware will handle login
@@ -25,7 +17,7 @@ export default function HomePage() {
   // Loading state
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center min-h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Loading...</p>
@@ -36,8 +28,8 @@ export default function HomePage() {
 
   // Logged in users will auto-redirect, this is mainly for displaying the not-logged-in state
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="max-w-4xl mx-auto text-center px-6">
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center min-h-full">
+      <div className="max-w-4xl mx-auto text-center px-6 py-12">
         {/* Hero Section */}
         <div className="space-y-8">
           {/* Logo */}
