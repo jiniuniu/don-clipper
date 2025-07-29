@@ -14,6 +14,7 @@ import {
   Code,
   Sparkles,
   Shield,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,15 +25,35 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { formatSVGCode } from "@/lib/svg-formatter";
 import { useAdmin } from "@/hooks/use-admin";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PHYSICS_CATEGORIES } from "@/lib/constants";
 
 interface SVGDisplayProps {
   svgCode: string;
   title: string;
   editable?: boolean;
-  onSave?: (newSvgCode: string) => void;
+  onSave?: (updates: {
+    svgCode?: string;
+    isPublic?: boolean;
+    category?: string;
+    subcategory?: string;
+  }) => void;
   isSaving?: boolean;
   className?: string;
-  requireAdmin?: boolean; // 新增：是否需要管理员权限
+  requireAdmin?: boolean;
+  // 新增：传入当前解释的设置信息
+  currentSettings?: {
+    isPublic?: boolean;
+    category?: string;
+    subcategory?: string;
+  };
 }
 
 export function SVGDisplay({
@@ -42,6 +63,7 @@ export function SVGDisplay({
   onSave,
   isSaving = false,
   className,
+  currentSettings,
   requireAdmin = false, // 默认不需要管理员权限
 }: SVGDisplayProps) {
   const [hasError, setHasError] = useState(false);
@@ -50,11 +72,24 @@ export function SVGDisplay({
   const [localSvgCode, setLocalSvgCode] = useState(svgCode);
   const [formattedCode, setFormattedCode] = useState("");
 
+  const [settings, setSettings] = useState({
+    isPublic: currentSettings?.isPublic || false,
+    category: currentSettings?.category || "",
+    subcategory: currentSettings?.subcategory || "",
+  });
+
+  // 检查是否有设置更改
+  const hasSvgChanges = localSvgCode !== svgCode;
+  const hasSettingsChanges =
+    settings.isPublic !== (currentSettings?.isPublic || false) ||
+    settings.category !== (currentSettings?.category || "") ||
+    settings.subcategory !== (currentSettings?.subcategory || "");
+  const hasChanges = hasSvgChanges || hasSettingsChanges;
+
   // 获取管理员状态
   const { isAdmin, isLoaded } = useAdmin();
 
   // 检查是否有未保存的更改
-  const hasChanges = localSvgCode !== svgCode;
 
   // 检查是否可以编辑（需要管理员权限时）
   const canEdit = editable && (!requireAdmin || isAdmin);
@@ -75,13 +110,28 @@ export function SVGDisplay({
   };
 
   const handleSave = async () => {
-    if (onSave && hasChanges && canEdit) {
-      await onSave(localSvgCode);
+    if (onSave && (hasChanges || hasSettingsChanges) && canEdit) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updates: any = {};
+      if (hasChanges) {
+        updates.svgCode = localSvgCode;
+      }
+      if (hasSettingsChanges) {
+        updates.isPublic = settings.isPublic;
+        updates.category = settings.category || undefined;
+        updates.subcategory = settings.subcategory || undefined;
+      }
+      await onSave(updates);
     }
   };
 
   const handleReset = () => {
     setLocalSvgCode(svgCode);
+    setSettings({
+      isPublic: currentSettings?.isPublic || false,
+      category: currentSettings?.category || "",
+      subcategory: currentSettings?.subcategory || "",
+    });
   };
 
   const handleFormat = () => {
@@ -187,7 +237,7 @@ export function SVGDisplay({
 
           {/* Tab 切换 */}
           <Tabs defaultValue="preview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="preview" className="flex items-center">
                 <Eye className="h-4 w-4 mr-2" />
                 Preview
@@ -200,8 +250,11 @@ export function SVGDisplay({
                 <Edit3 className="h-4 w-4 mr-2" />
                 Edit Code
               </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </TabsTrigger>
             </TabsList>
-
             <TabsContent value="preview" className="mt-4">
               <div className="bg-white rounded-lg border overflow-hidden shadow-sm min-h-[300px] flex items-center justify-center">
                 {localSvgCode ? (
@@ -218,7 +271,6 @@ export function SVGDisplay({
                 )}
               </div>
             </TabsContent>
-
             <TabsContent value="view-code" className="mt-4">
               <div className="relative">
                 <div className="absolute top-2 right-2 z-10">
@@ -252,7 +304,6 @@ export function SVGDisplay({
                 </div>
               </div>
             </TabsContent>
-
             <TabsContent value="edit-code" className="mt-4">
               <div className="space-y-3">
                 {/* 代码编辑工具栏 */}
@@ -293,6 +344,101 @@ export function SVGDisplay({
   <!-- Your SVG content here -->
 </svg>"
                 />
+              </div>
+            </TabsContent>
+            <TabsContent value="settings" className="mt-4">
+              <div className="space-y-6">
+                {/* 公开设置 */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Visibility</h4>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm">Make this explanation public</p>
+                      <p className="text-xs text-muted-foreground">
+                        Public explanations will be visible on the homepage
+                      </p>
+                    </div>
+                    <Switch
+                      checked={settings.isPublic}
+                      onCheckedChange={(checked) => {
+                        setSettings((prev) => ({ ...prev, isPublic: checked }));
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* 分类设置 */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Category</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground">
+                        Main Category
+                      </label>
+                      <Select
+                        value={settings.category}
+                        onValueChange={(value) => {
+                          setSettings((prev) => ({
+                            ...prev,
+                            category: value,
+                            subcategory: "", // 清空子分类
+                          }));
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.keys(PHYSICS_CATEGORIES).map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground">
+                        Subcategory
+                      </label>
+                      <Select
+                        value={settings.subcategory}
+                        onValueChange={(value) => {
+                          setSettings((prev) => ({
+                            ...prev,
+                            subcategory: value,
+                          }));
+                        }}
+                        disabled={!settings.category}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subcategory" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {settings.category &&
+                            PHYSICS_CATEGORIES[
+                              settings.category as keyof typeof PHYSICS_CATEGORIES
+                            ]?.map((subcategory) => (
+                              <SelectItem key={subcategory} value={subcategory}>
+                                {subcategory}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 保存提示 */}
+                {hasSettingsChanges && (
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-xs text-blue-800">
+                      💡 Remember to save your changes using the main Save
+                      button
+                    </p>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

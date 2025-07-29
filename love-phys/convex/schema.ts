@@ -23,6 +23,12 @@ export default defineSchema({
       v.literal("completed"), // 全部完成
       v.literal("failed") // 失败
     ),
+    isPublic: v.optional(v.boolean()),
+    category: v.optional(v.string()),
+    subcategory: v.optional(v.string()),
     createdAt: v.number(),
-  }).index("by_session", ["sessionId"]),
+  })
+    .index("by_session", ["sessionId"])
+    .index("by_public", ["isPublic"])
+    .index("by_category", ["category", "isPublic"]),
 });

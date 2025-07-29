@@ -22,4 +22,7 @@ export interface Explanation {
     | "completed"
     | "failed";
   createdAt: number;
+  isPublic?: boolean;
+  category?: string;
+  subcategory?: string;
 }

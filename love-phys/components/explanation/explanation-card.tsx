@@ -37,16 +37,20 @@ export function ExplanationCard({
     });
   };
 
-  // SVG 保存功能 - 所有用户都可以使用
-  const handleSvgSave = async (newSvgCode: string) => {
+  const handleSvgSave = async (updates: {
+    svgCode?: string;
+    isPublic?: boolean;
+    category?: string;
+    subcategory?: string;
+  }) => {
     setIsSaving(true);
     try {
       await updateExplanation({
         explanationId: explanation._id,
-        svgCode: newSvgCode,
+        ...updates,
       });
     } catch (error) {
-      console.error("Failed to save SVG updates:", error);
+      console.error("Failed to save updates:", error);
     } finally {
       setIsSaving(false);
     }
@@ -137,10 +141,15 @@ export function ExplanationCard({
           <SVGDisplay
             svgCode={explanation.svgCode}
             title={explanation.question}
-            editable={true} // 启用编辑功能
-            onSave={handleSvgSave}
+            editable={true}
+            onSave={handleSvgSave} // 需要修改这个函数来处理新的参数结构
             requireAdmin={true}
             isSaving={isSaving}
+            currentSettings={{
+              isPublic: explanation.isPublic,
+              category: explanation.category,
+              subcategory: explanation.subcategory,
+            }}
           />
         )}
 

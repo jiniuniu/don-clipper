@@ -57,3 +57,46 @@ export const EXAMPLE_QUESTIONS = [
 export const APP_NAME = "Love Physics";
 export const APP_DESCRIPTION =
   "Explore the physical principles behind natural phenomena";
+
+export const PHYSICS_CATEGORIES = {
+  optics: [
+    "refraction",
+    "reflection",
+    "scattering",
+    "interference",
+    "diffraction",
+    "polarization",
+  ],
+  mechanics: [
+    "kinematics",
+    "dynamics",
+    "fluid_mechanics",
+    "waves_and_vibrations",
+    "rotational_motion",
+  ],
+  thermodynamics: [
+    "heat_transfer",
+    "phase_transitions",
+    "thermodynamic_cycles",
+    "kinetic_theory",
+  ],
+  electromagnetism: [
+    "electrostatics",
+    "electric_current",
+    "magnetic_fields",
+    "electromagnetic_induction",
+    "electromagnetic_waves",
+  ],
+  quantum_physics: [
+    "atomic_structure",
+    "quantum_effects",
+    "particle_physics",
+    "radioactivity",
+  ],
+  astrophysics: [
+    "planetary_motion",
+    "stellar_phenomena",
+    "cosmology",
+    "gravity",
+  ],
+} as const;

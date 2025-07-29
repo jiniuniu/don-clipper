@@ -88,3 +88,71 @@ export const getExplanation = query({
     return explanation;
   },
 });
+
+export const getPublicExplanations = query({
+  args: {
+    category: v.optional(v.string()),
+    limit: v.optional(v.number()),
+    cursor: v.optional(v.number()), // 用于无限滚动
+  },
+  handler: async (ctx, { category, limit = 20, cursor = 0 }) => {
+    let query = ctx.db
+      .query("explanations")
+      .withIndex("by_public", (q) => q.eq("isPublic", true));
+
+    // 如果指定了分类，进一步筛选
+    if (category) {
+      query = ctx.db
+        .query("explanations")
+        .withIndex("by_category", (q) =>
+          q.eq("category", category).eq("isPublic", true)
+        );
+    }
+
+    const explanations = await query.order("desc").take(limit + cursor);
+
+    // 返回分页数据
+    return {
+      explanations: explanations.slice(cursor, cursor + limit),
+      hasMore: explanations.length > cursor + limit,
+      nextCursor: cursor + limit,
+    };
+  },
+});
+
+export const getPublicExplanation = query({
+  args: { explanationId: v.id("explanations") },
+  handler: async (ctx, { explanationId }) => {
+    const explanation = await ctx.db.get(explanationId);
+
+    // 只返回公开的解释
+    if (!explanation || !explanation.isPublic) {
+      return null;
+    }
+
+    return explanation;
+  },
+});
+
+export const getUsedCategories = query({
+  args: {},
+  handler: async (ctx) => {
+    const explanations = await ctx.db
+      .query("explanations")
+      .withIndex("by_public", (q) => q.eq("isPublic", true))
+      .collect();
+
+    // 统计使用的分类
+    const categoryCount: Record<string, number> = {};
+    explanations.forEach((exp) => {
+      if (exp.category) {
+        categoryCount[exp.category] = (categoryCount[exp.category] || 0) + 1;
+      }
+    });
+
+    return Object.entries(categoryCount).map(([category, count]) => ({
+      category,
+      count,
+    }));
+  },
+});
