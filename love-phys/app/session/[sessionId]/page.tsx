@@ -66,7 +66,7 @@ export default function SessionDetailPage({ params }: SessionDetailPageProps) {
     router,
   ]);
 
-  // 处理 URL 中的问题参数 - 优化版本
+  // 处理 URL 中的问题参数 - 兼容新的流程
   useEffect(() => {
     if (
       questionFromUrl &&
@@ -74,26 +74,48 @@ export default function SessionDetailPage({ params }: SessionDetailPageProps) {
       !isGenerating &&
       !hasProcessedUrlQuestion.current
     ) {
+      console.log("🔍 Processing question from URL:", questionFromUrl);
       hasProcessedUrlQuestion.current = true;
 
-      askQuestion(questionFromUrl)
-        .then(() => {
-          // 清除 URL 中的问题参数
-          const newUrl = `/session/${sessionId}`;
-          router.replace(newUrl);
-        })
-        .catch((error) => {
-          console.error("Failed to ask question:", error);
-          hasProcessedUrlQuestion.current = false; // 失败时重置，允许重试
-        });
+      // 检查是否已经有这个问题的 explanation
+      const hasExistingExplanation = explanations.some(
+        (exp) => exp.question === questionFromUrl
+      );
+
+      if (!hasExistingExplanation) {
+        console.log("❓ Asking question from URL");
+        askQuestion(questionFromUrl)
+          .then(() => {
+            console.log("✅ Question from URL processed successfully");
+            // 清除 URL 中的问题参数
+            const newUrl = `/session/${sessionId}`;
+            router.replace(newUrl);
+          })
+          .catch((error) => {
+            console.error("❌ Failed to ask question:", error);
+            hasProcessedUrlQuestion.current = false; // 失败时重置，允许重试
+          });
+      } else {
+        console.log("ℹ️ Question already exists, just cleaning URL");
+        // 如果问题已经存在，只清理 URL
+        const newUrl = `/session/${sessionId}`;
+        router.replace(newUrl);
+      }
     }
 
     // 当没有 questionFromUrl 时重置标志
     if (!questionFromUrl) {
       hasProcessedUrlQuestion.current = false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questionFromUrl, currentSession, isGenerating]); // 移除 askQuestion 依赖
+  }, [
+    questionFromUrl,
+    currentSession,
+    isGenerating,
+    explanations,
+    askQuestion,
+    router,
+    sessionId,
+  ]);
 
   // 加载状态显示
   if (isLoadingSessions || isLoadingCurrentSession) {

@@ -36,7 +36,7 @@ export function ExplanationPreviewCard({
       >
         <CardContent className="p-0">
           {/* SVG 预览区域 */}
-          <div className="aspect-video bg-gradient-to-br from-blue-50 to-indigo-100 relative overflow-hidden">
+          <div className="aspect-video bg-gradient-to-br relative overflow-hidden">
             {explanation.svgCode && !hasError ? (
               <div
                 className="w-full h-full flex items-center justify-center p-4"

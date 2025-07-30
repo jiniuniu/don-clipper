@@ -100,16 +100,6 @@ export const generateExplanation = action({
         status: "completed",
       });
 
-      // 更新Session标题
-      const shouldUpdateTitle =
-        question.length <= 50 && session.title === "new exploration";
-      if (shouldUpdateTitle) {
-        await ctx.runMutation(api.mutations.updateSession, {
-          sessionId,
-          title: question.slice(0, 30) + (question.length > 30 ? "..." : ""),
-        });
-      }
-
       return { sessionId, explanationId, success: true };
     } catch (error) {
       console.error("Failed to generate explanation:", error);
