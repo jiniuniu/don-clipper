@@ -3,9 +3,6 @@
 
 import React, { use } from "react";
 import { useQuery } from "convex/react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home } from "lucide-react";
 import { ExplanationDetailCard } from "@/components/explanation/explanation-detail-card";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -27,8 +24,6 @@ function isValidConvexId(id: string): boolean {
 export default function ExplanationDetailPage({
   params,
 }: ExplanationDetailPageProps) {
-  const router = useRouter();
-
   // 使用 React.use() 来解包 Promise
   const resolvedParams = use(params);
 
@@ -61,28 +56,6 @@ export default function ExplanationDetailPage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-4xl mx-auto p-6">
-        {/* 导航栏 */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={() => router.back()}
-              className="bg-white/80 backdrop-blur"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => router.push("/")}
-              className="bg-white/80 backdrop-blur"
-            >
-              <Home className="h-4 w-4 mr-2" />
-              Home
-            </Button>
-          </div>
-        </div>
-
         {/* 详情卡片 */}
         <ExplanationDetailCard
           explanation={explanation}

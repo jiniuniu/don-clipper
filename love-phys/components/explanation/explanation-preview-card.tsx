@@ -54,30 +54,29 @@ export function ExplanationPreviewCard({
           </div>
 
           {/* 内容区域 */}
-          <div className="p-4 space-y-2">
+          <div className="px-4 pt-4 space-y-2">
+            {/* 分类 Badge 行 */}
+            <div className="flex gap-1">
+              {explanation.category && (
+                <Badge variant="default" className="text-xs">
+                  {explanation.category}
+                </Badge>
+              )}
+              {explanation.subcategory && (
+                <Badge variant="default" className="text-xs">
+                  {explanation.subcategory}
+                </Badge>
+              )}
+            </div>
+
+            {/* 标题行 */}
             <div className="flex items-start justify-between gap-2">
               <h3 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors flex-1">
                 {explanation.question}
               </h3>
 
-              {/* 分类 Badge 移到右侧 */}
-              <div className="flex gap-1 shrink-0">
-                {explanation.category && (
-                  <Badge variant="default" className="text-xs">
-                    {explanation.category}
-                  </Badge>
-                )}
-                {explanation.subcategory && (
-                  <Badge variant="default" className="text-xs">
-                    {explanation.subcategory}
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            {/* 悬停指示器 */}
-            <div className="flex justify-end">
-              <div className="w-2 h-2 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* 悬停指示器 */}
+              <div className="w-2 h-2 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
             </div>
           </div>
         </CardContent>
