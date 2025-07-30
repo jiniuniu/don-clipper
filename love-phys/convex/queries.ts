@@ -1,3 +1,4 @@
+import { paginationOptsValidator } from "convex/server";
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -91,32 +92,31 @@ export const getExplanation = query({
 
 export const getPublicExplanations = query({
   args: {
+    paginationOpts: paginationOptsValidator,
     category: v.optional(v.string()),
-    limit: v.optional(v.number()),
-    cursor: v.optional(v.number()), // 用于无限滚动
   },
-  handler: async (ctx, { category, limit = 20, cursor = 0 }) => {
-    let query = ctx.db
+  handler: async (ctx, { paginationOpts, category }) => {
+    let queryBuilder = ctx.db
       .query("explanations")
       .withIndex("by_public", (q) => q.eq("isPublic", true));
 
     // 如果指定了分类，进一步筛选
     if (category) {
-      query = ctx.db
+      queryBuilder = ctx.db
         .query("explanations")
         .withIndex("by_category", (q) =>
           q.eq("category", category).eq("isPublic", true)
         );
     }
 
-    const explanations = await query.order("desc").take(limit + cursor);
+    // 使用 Convex 官方的 paginate 方法
+    const result = await queryBuilder.order("desc").paginate(paginationOpts);
 
-    // 返回分页数据
-    return {
-      explanations: explanations.slice(cursor, cursor + limit),
-      hasMore: explanations.length > cursor + limit,
-      nextCursor: cursor + limit,
-    };
+    return result;
+    // result 包含:
+    // - page: 当前页的数据数组
+    // - continueCursor: 下一页的游标（字符串）
+    // - isDone: 是否已经到最后一页
   },
 });
 

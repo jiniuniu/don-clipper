@@ -1,14 +1,14 @@
-// app/page.tsx - 完整的主页修改
+// app/page.tsx - 使用 Convex 官方分页的主页修改
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ExplanationPreviewCard } from "@/components/explanation/explanation-preview-card";
 import { CategoryFilter } from "@/components/category/category-filter";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 export default function HomePage() {
@@ -20,54 +20,18 @@ export default function HomePage() {
     string | undefined
   >();
 
-  // 无限滚动状态
-  const [currentCursor, setCurrentCursor] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [allExplanations, setAllExplanations] = useState<any[]>([]);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-
-  // 查询数据
-  const publicExplanationsQuery = useQuery(api.queries.getPublicExplanations, {
-    category: selectedCategory,
-    limit: 12, // 每次加载12个
-    cursor: currentCursor,
-  });
+  // 使用 Convex 官方的分页 hook
+  const {
+    results: explanations,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.queries.getPublicExplanations,
+    { category: selectedCategory }, // 只传业务参数，不需要 paginationOpts
+    { initialNumItems: 12 } // 首次加载 12 个
+  );
 
   const categoryCounts = useQuery(api.queries.getUsedCategories);
-
-  // 处理数据更新
-  useEffect(() => {
-    if (publicExplanationsQuery) {
-      if (currentCursor === 0) {
-        // 新的查询或重置
-        setAllExplanations(publicExplanationsQuery.explanations);
-      } else {
-        // 加载更多
-        setAllExplanations((prev) => [
-          ...prev,
-          ...publicExplanationsQuery.explanations,
-        ]);
-      }
-      setHasMore(publicExplanationsQuery.hasMore);
-      setIsLoadingMore(false);
-    }
-  }, [publicExplanationsQuery, currentCursor]);
-
-  // 重置数据当分类改变时
-  useEffect(() => {
-    setCurrentCursor(0);
-    setAllExplanations([]);
-    setHasMore(true);
-  }, [selectedCategory]);
-
-  // 加载更多
-  const loadMore = () => {
-    if (publicExplanationsQuery && hasMore && !isLoadingMore) {
-      setIsLoadingMore(true);
-      setCurrentCursor(publicExplanationsQuery.nextCursor);
-    }
-  };
 
   const handleGetStarted = () => {
     router.push("/session");
@@ -111,7 +75,7 @@ export default function HomePage() {
           {/* Explanations Grid */}
           <div className="space-y-8">
             {/* Loading State for Initial Load */}
-            {publicExplanationsQuery === undefined ? (
+            {status === "LoadingFirstPage" ? (
               <div className="flex justify-center py-12">
                 <div className="text-center">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
@@ -120,7 +84,7 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-            ) : allExplanations.length === 0 ? (
+            ) : explanations && explanations.length === 0 ? (
               /* Empty State */
               <div className="text-center py-12">
                 <div className="text-6xl mb-6">🔍</div>
@@ -142,7 +106,7 @@ export default function HomePage() {
               /* Explanations Grid */
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {allExplanations.map((explanation) => (
+                  {explanations?.map((explanation) => (
                     <ExplanationPreviewCard
                       key={explanation._id}
                       explanation={explanation}
@@ -151,35 +115,44 @@ export default function HomePage() {
                 </div>
 
                 {/* Load More Button */}
-                {hasMore && (
+                {status === "CanLoadMore" && (
                   <div className="flex justify-center pt-8">
                     <Button
-                      onClick={loadMore}
-                      disabled={isLoadingMore}
+                      onClick={() => loadMore(12)} // 每次加载 12 个
                       variant="outline"
                       size="lg"
                       className="bg-white/80 backdrop-blur"
                     >
-                      {isLoadingMore ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Loading more...
-                        </>
-                      ) : (
-                        "Load More Explanations"
-                      )}
+                      Load More Explanations
+                    </Button>
+                  </div>
+                )}
+
+                {/* Loading More State */}
+                {status === "LoadingMore" && (
+                  <div className="flex justify-center pt-8">
+                    <Button
+                      disabled
+                      variant="outline"
+                      size="lg"
+                      className="bg-white/80 backdrop-blur"
+                    >
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Loading more...
                     </Button>
                   </div>
                 )}
 
                 {/* End Message */}
-                {!hasMore && allExplanations.length > 0 && (
-                  <div className="text-center pt-8">
-                    <p className="text-gray-500 text-sm">
-                      🎉 You&apos;ve seen all available explanations!
-                    </p>
-                  </div>
-                )}
+                {status === "Exhausted" &&
+                  explanations &&
+                  explanations.length > 0 && (
+                    <div className="text-center pt-8">
+                      <p className="text-gray-500 text-sm">
+                        🎉 You&apos;ve seen all available explanations!
+                      </p>
+                    </div>
+                  )}
               </>
             )}
           </div>
