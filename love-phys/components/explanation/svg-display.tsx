@@ -26,6 +26,8 @@ import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { formatSVGCode } from "@/lib/svg-formatter";
 import { useAdmin } from "@/hooks/use-admin";
 import { Switch } from "@/components/ui/switch";
+import { createPortal } from "react-dom";
+
 import {
   Select,
   SelectContent,
@@ -555,48 +557,51 @@ export function SVGDisplay({
     <>
       <div className={cn("relative", className)}>{renderContent()}</div>
 
-      {/* 全屏模态框 */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-full items-center justify-center p-4">
-            <div className="relative max-w-6xl max-h-full w-full">
-              {/* 关闭按钮 */}
-              <div className="absolute top-4 right-4 z-10">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={toggleFullscreen}
-                  className="h-10 w-10 p-0"
-                >
-                  <Minimize2 className="h-5 w-5" />
-                </Button>
-              </div>
-
-              {/* 全屏 SVG */}
-              <div className="bg-white rounded-lg border shadow-lg overflow-hidden">
-                <div
-                  className="w-full h-full min-h-[400px] flex items-center justify-center p-8"
-                  dangerouslySetInnerHTML={{ __html: svgCode }}
-                />
-              </div>
-
-              {/* 全屏标题 */}
-              <div className="flex items-center justify-center gap-2 mt-4">
-                <p className="text-center text-lg font-medium">📊 {title}</p>
-                {requireAdmin && isAdmin && (
-                  <Badge
-                    variant="outline"
-                    className="bg-green-100 text-green-800 border-green-300"
+      {/* 全屏模态框 - 使用 Portal 渲染到 body */}
+      {isFullscreen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-full items-center justify-center p-4">
+              <div className="relative max-w-6xl max-h-full w-full">
+                {/* 关闭按钮 */}
+                <div className="absolute top-4 right-4 z-10">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={toggleFullscreen}
+                    className="h-10 w-10 p-0"
                   >
-                    <Shield className="h-3 w-3 mr-1" />
-                    Admin
-                  </Badge>
-                )}
+                    <Minimize2 className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                {/* 全屏 SVG */}
+                <div className="bg-white rounded-lg border shadow-lg overflow-hidden">
+                  <div
+                    className="w-full h-full min-h-[400px] flex items-center justify-center p-8"
+                    dangerouslySetInnerHTML={{ __html: svgCode }}
+                  />
+                </div>
+
+                {/* 全屏标题 */}
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <p className="text-center text-lg font-medium">📊 {title}</p>
+                  {requireAdmin && isAdmin && (
+                    <Badge
+                      variant="outline"
+                      className="bg-green-100 text-green-800 border-green-300"
+                    >
+                      <Shield className="h-3 w-3 mr-1" />
+                      Admin
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body // 渲染到 body，脱离父容器限制
+        )}
     </>
   );
 }

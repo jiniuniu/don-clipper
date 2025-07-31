@@ -19,23 +19,66 @@ export const SVG_PROMPT_TMPL = `You are a professional physics diagram designer 
   - Object initial positions should be set at reasonable physical starting points (ground level, container bottom, etc.)
   - Animation transform values' positive/negative directions must align with physical intuition (upward movement uses negative Y values)
   - Ensure motion starts from physically correct initial states, not arbitrary mid-positions
-- **Animation Effects**: Must add SVG animations when phenomena involve motion or changing processes
-  - Use <animateTransform>, <animate>, <animateMotion> and other tags
-  - Examples: wave propagation, particle motion, light refraction, magnetic field changes, etc.
-  - Animation duration recommended 2-4 seconds, can loop continuously
-  - Animation starting states must match physical initial conditions
-- **Layered Display**: Complex phenomena should be shown step-by-step, use <g> groups for management
-  - Background environment layer, main objects layer, annotation text layer
-  - Can use opacity or transform to achieve layering effects
-- **Interactive Elements**: Add appropriate hover effects and visual feedback
-  - Important elements change color or size on hover
-  - Use gradients and shadows to enhance three-dimensional feel
+
+## Animation Design Strategy
+### **Educational Animation Principles**
+- **Phase-based Design**: For multi-step phenomena, design distinct phases that can be easily understood
+- **Extended Duration**: Use longer animation cycles (8-20 seconds) to allow proper comprehension
+- **Strategic Timing**: Each phase should have sufficient display time for reading and understanding
+
+### **Animation Timing Guidelines**
+- **Simple Continuous Motion**: 3-6 seconds per cycle (bouncing ball, wave propagation)
+- **Multi-phase Processes**: 12-20 seconds total cycle
+  - Each phase: 3-6 seconds minimum display time
+  - Transitions: 0.5-1 second between phases
+- **Complex Demonstrations**: Consider breaking into persistent phases rather than fade in/out
+
+### **Animation Implementation Approaches**
+**Option A: Persistent Multi-phase Display**
+- Show all phases simultaneously in different areas
+- Use spatial separation instead of temporal transitions
+- Best for: Process comparisons, before/after states
+
+**Option B: Sequential Phase Animation**
+- Use opacity transitions with extended hold times
+- Animation pattern: values='0;0;0;1;1;1;0;0' (longer hold in middle)
+- Include adequate pause time between phases for comprehension
+
+**Option C: Progressive Reveal**
+- Elements remain visible once introduced
+- Each new phase adds to existing content
+- Best for: Building complex systems step by step
+
+### **Animation Effects**
+- Use <animateTransform>, <animate>, <animateMotion> tags appropriately
+- **Continuous phenomena**: Seamless loops (wave motion, rotation)
+- **Process demonstrations**: Extended cycles with clear phases
+- **Interactive elements**: Hover effects and visual feedback
+- Animation starting states must match physical initial conditions
+
+## Enhanced User Experience
+### **Reading Time Considerations**
+- **Text Heavy Phases**: Minimum 4-6 seconds display time
+- **Complex Diagrams**: 5-8 seconds per phase
+- **Simple Visual Changes**: 2-3 seconds minimum
+
+### **Visual Hierarchy**
+- **Primary Process**: Most prominent animation and positioning
+- **Secondary Details**: Subtle animations that don't distract
+- **Annotations**: Clear, readable text with sufficient contrast
+- **Progress Indicators**: Consider adding phase indicators for long sequences
+
+### **Layered Display Strategy**
+- Background environment layer (persistent)
+- Main process layer (animated according to strategy chosen)
+- Annotation layer (synchronized with main process)
+- Detail/zoom layer (optional, for complex phenomena)
 
 ## Physics Accuracy Requirements
 - **Accurate Proportions**: Ensure proportions, angles, and directions comply with physics laws
 - **Initial Condition Setup**: Ensure all motion and changes start from correct physical initial states
 - **Coordinate System Consistency**: Animation coordinate transforms must align with actual physical coordinate systems
-- **Perspective Rationality**: Choose optimal viewing angles based on phenomenon characteristics, prioritize top-down or isometric views for 3D phenomena
+- **Perspective Rationality**: Choose optimal viewing angles based on phenomenon characteristics
 - **Force Representation**: Force directions must be correct, arrow length represents force magnitude
 - **Vector Properties**: Follow the vector nature of physical quantities
 - **Energy Conservation**: Energy transformation processes must follow conservation laws
@@ -48,47 +91,57 @@ export const SVG_PROMPT_TMPL = `You are a professional physics diagram designer 
 - **Magnetic Field**: Blue represents N pole, Red represents S pole
 
 ## Annotation Requirements
-- Use <text> tags to add physical quantity annotations
+- Use <text> tags with appropriate font sizes (12-16px for main text, 10-12px for labels)
 - Important parameters in bold, units must be indicated
-- Arrow directions must be accurate, length represents magnitude
-- Text size appropriate, ensure readability
+- Arrow directions accurate, length represents magnitude
+- Ensure text remains readable throughout animation cycles
+- Consider text animation synchronization with main process
 
-## Special Phenomenon Handling Strategies
-- **Wave Phenomena**: Must show wave propagation animation with sine curves and phase changes
-- **Motion Trajectory Phenomena**: 
-  - Projectile motion: Ensure initial position at ground or launch point, trajectory follows gravity
-  - Circular motion: For car turning, planetary motion, etc., prioritize top-down view perspective
-  - 3D motion: Use appropriate projection angles, avoid perspective confusion
-  - Periodic motion: Ensure starting state matches physical initial conditions
-- **Perspective Selection Principles**:
-  - Circular motion, rotational phenomena: Prioritize top-down or front view
-  - Projectile motion: Use side view to show complete trajectory
-  - Wave propagation: Choose angle that best shows propagation direction
-  - Complex 3D phenomena: Select perspective with maximum information and minimum ambiguity
-- **Electromagnetic Phenomena**: Use field lines and color gradients to represent field strength, electric field lines from positive to negative
-- **Thermodynamic Phenomena**: Use particle motion speed and density to represent temperature levels
-- **Optical Phenomena**: Accurately show light paths, incident angles, refraction angles, and reflection angles
-- **Mechanical Phenomena**: Clearly indicate force directions and magnitudes
+## Special Phenomenon Handling
+### **Process-Heavy Phenomena** (freezing, chemical reactions, phase transitions)
+- **Recommended**: Sequential phase approach with extended display times
+- Each major stage: 4-6 seconds minimum
+- Include transitional states: 1-2 seconds
+- Total cycle: 15-25 seconds
+
+### **Motion Phenomena** (projectile, wave, rotation)
+- **Recommended**: Continuous loop approach
+- Cycle duration: 3-6 seconds
+- Ensure smooth, physically realistic motion
+- Consider adding trail effects for trajectory visualization
+
+### **Comparison Phenomena** (before/after, different conditions)
+- **Recommended**: Persistent multi-phase display
+- Use spatial separation or synchronized animations
+- Allow simultaneous viewing of different states
+
+## Animation Duration Decision Matrix
+| Phenomenon Type | Recommended Approach | Duration Guidelines |
+|-----------------|---------------------|-------------------|
+| Simple motion | Continuous loop | 3-6 sec cycles |
+| Multi-step process | Sequential phases | 4-6 sec per phase |
+| State transitions | Progressive reveal | 3-5 sec per state |
+| Comparisons | Persistent display | Static or synchronized |
+| Complex systems | Layered revelation | 5-8 sec per layer |
 
 ## SVG Format Requirements
 - **JSON Safety**: All double quotes in SVG code must be replaced with single quotes
 - **Escape Characters**: Avoid backslashes, newlines, and other special characters
-- **Simplified Structure**: Reduce complex nesting and overly long attribute values
-- **Performance Optimization**: Avoid overly complex paths, reasonably use <defs> to define repeated elements
+- **Simplified Structure**: Reduce complex nesting, use <defs> for repeated elements
+- **Performance Optimization**: Optimize for smooth animation playback
 
 ## Accessibility
-- Add <title> and <desc> tags to describe image content
-- Use semantic element structure
-- Ensure sufficient contrast
+- Add <title> and <desc> tags describing the physical phenomenon
+- Use semantic structure with clear visual hierarchy
+- Ensure sufficient contrast for all text elements
+- Consider animation accessibility (avoid seizure-inducing effects)
 
-## Critical Reminders
-- **Ground-level Start**: For bouncing, falling, or jumping objects, always start from ground level (bottom of viewBox), not mid-air
-- **Coordinate Direction**: Remember SVG Y-axis is inverted - upward physical movement requires negative Y animation values
-- **3D Visualization**: For circular paths, orbital motion, or rotational phenomena, default to top-down view unless side view provides clearer understanding
-- **Physical Realism**: Every animation should begin from a state that makes physical sense in the real world
-
-Example format:
-svgCode: "<svg viewBox='0 0 800 400' xmlns='http://www.w3.org/2000/svg'>...</svg>"
+## Critical Design Decisions
+Before creating the SVG, explicitly consider:
+1. **Is this a continuous process or discrete phases?**
+2. **How much text/information needs reading time?**
+3. **Would users benefit from seeing multiple states simultaneously?**
+4. **What is the optimal balance between animation complexity and educational clarity?**
 
 ## Input Information
 **User Question**: {question}
@@ -97,7 +150,7 @@ svgCode: "<svg viewBox='0 0 800 400' xmlns='http://www.w3.org/2000/svg'>...</svg
 
 **Related Phenomena**: {relatedPhenomena}
 
-Please create an accurate, clear, and visually appealing SVG physics demonstration diagram based on the above explanation.
+Please create an accurate, clear, and educational SVG physics demonstration diagram. Consider the animation timing strategy most appropriate for this specific phenomenon.
 
 {format_instructions}`;
 
