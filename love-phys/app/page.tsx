@@ -4,10 +4,9 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useQuery, usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ExplanationPreviewCard } from "@/components/explanation/explanation-preview-card";
-import { CategoryFilter } from "@/components/category/category-filter";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -16,6 +15,7 @@ export default function HomePage() {
   const { isLoaded, isSignedIn } = useUser();
 
   // 分类筛选状态
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedCategory, setSelectedCategory] = useState<
     string | undefined
   >();
@@ -30,8 +30,6 @@ export default function HomePage() {
     { category: selectedCategory }, // 只传业务参数，不需要 paginationOpts
     { initialNumItems: 12 } // 首次加载 12 个
   );
-
-  const categoryCounts = useQuery(api.queries.getUsedCategories);
 
   const handleGetStarted = () => {
     router.push("/session");
@@ -61,15 +59,6 @@ export default function HomePage() {
             <p className="text-gray-600 text-lg">
               Discover fascinating explanations created by our community
             </p>
-          </div>
-
-          {/* Category Filter */}
-          <div className="max-w-md mx-auto">
-            <CategoryFilter
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              categoryCounts={categoryCounts || []}
-            />
           </div>
 
           {/* Explanations Grid */}

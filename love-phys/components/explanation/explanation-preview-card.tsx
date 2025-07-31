@@ -3,7 +3,6 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -55,20 +54,6 @@ export function ExplanationPreviewCard({
 
           {/* 内容区域 */}
           <div className="px-4 pt-4 space-y-2">
-            {/* 分类 Badge 行 */}
-            <div className="flex gap-1">
-              {explanation.category && (
-                <Badge variant="default" className="text-xs">
-                  {explanation.category}
-                </Badge>
-              )}
-              {explanation.subcategory && (
-                <Badge variant="default" className="text-xs">
-                  {explanation.subcategory}
-                </Badge>
-              )}
-            </div>
-
             {/* 标题行 */}
             <div className="flex items-start justify-between gap-2">
               <h3 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors flex-1">
