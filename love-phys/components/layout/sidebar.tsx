@@ -31,6 +31,9 @@ interface SidebarProps {
   onNewSession: () => void;
   onDeleteSession?: (sessionId: string) => void;
   className?: string;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
 export function Sidebar({
@@ -40,6 +43,9 @@ export function Sidebar({
   onNewSession,
   onDeleteSession,
   className,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
 }: SidebarProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
@@ -143,6 +149,18 @@ export function Sidebar({
                   </div>
                 </Card>
               ))
+            )}
+            {sessions.length > 0 && hasMore && (
+              <div className="pt-2">
+                <Button
+                  variant="ghost"
+                  onClick={onLoadMore}
+                  disabled={isLoadingMore}
+                  className="w-full text-sm text-muted-foreground hover:text-foreground"
+                >
+                  {isLoadingMore ? "Loading..." : "Load More"}
+                </Button>
+              </div>
             )}
           </div>
         </div>

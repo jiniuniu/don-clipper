@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useAction } from "convex/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { Session, Explanation } from "@/types";
@@ -16,6 +16,10 @@ export interface UsePhysicsReturn {
   isLoadingSessions: boolean;
   isLoadingCurrentSession: boolean;
   isLoadingExplanations: boolean;
+  // 分页相关
+  loadMoreSessions: () => void;
+  hasMoreSessions: boolean;
+  isLoadingMoreSessions: boolean;
 
   // 操作
   askQuestion: (question: string) => Promise<void>;
@@ -26,8 +30,19 @@ export interface UsePhysicsReturn {
 }
 
 export function usePhysics(sessionId?: string): UsePhysicsReturn {
-  // 查询 - 保存原始查询结果以检测加载状态
-  const sessionsQuery = useQuery(api.queries.getSessions);
+  // 分页状态管理
+  const [sessionsPaginationOpts, setSessionsPaginationOpts] = useState({
+    numItems: 20, // 每页20个
+    cursor: null as string | null,
+  });
+  const [allSessions, setAllSessions] = useState<Session[]>([]);
+  const [hasMoreSessions, setHasMoreSessions] = useState(true);
+
+  // 查询 - 使用分页查询
+  const sessionsQuery = useQuery(api.queries.getSessionsPaginated, {
+    paginationOpts: sessionsPaginationOpts,
+  });
+
   const currentSessionQuery = useQuery(
     api.queries.getSession,
     sessionId ? { sessionId: sessionId as Id<"sessions"> } : "skip"
@@ -36,16 +51,35 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
     api.queries.getSessionExplanations,
     sessionId ? { sessionId: sessionId as Id<"sessions"> } : "skip"
   );
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [creatingSession, setCreatingSession] = useState(false);
   const creatingSessionRef = useRef(false);
+
+  // 处理分页结果
+  useEffect(() => {
+    if (sessionsQuery) {
+      if (sessionsPaginationOpts.cursor === null) {
+        // 首次加载，替换所有数据
+        setAllSessions(sessionsQuery.page);
+      } else {
+        // 加载更多，追加数据
+        setAllSessions((prev) => [...prev, ...sessionsQuery.page]);
+      }
+      setHasMoreSessions(!sessionsQuery.isDone);
+    }
+  }, [sessionsQuery, sessionsPaginationOpts.cursor]);
+
   // 处理后的数据
-  const sessions = sessionsQuery ?? [];
+  const sessions = allSessions;
   const currentSession = currentSessionQuery ?? null;
   const explanations = explanationsQuery ?? [];
 
   // 加载状态检测
-  const isLoadingSessions = sessionsQuery === undefined;
+  const isLoadingSessions =
+    sessionsQuery === undefined && sessionsPaginationOpts.cursor === null;
+  const isLoadingMoreSessions =
+    sessionsQuery === undefined && sessionsPaginationOpts.cursor !== null;
   const isLoadingCurrentSession = sessionId
     ? currentSessionQuery === undefined
     : false;
@@ -61,6 +95,20 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
 
   // 检查是否正在生成
   const isGenerating = explanations.some((exp) => exp.status === "generating");
+
+  // 加载更多sessions
+  const loadMoreSessions = useCallback(() => {
+    if (
+      sessionsQuery &&
+      !sessionsQuery.isDone &&
+      sessionsQuery.continueCursor
+    ) {
+      setSessionsPaginationOpts((prev) => ({
+        ...prev,
+        cursor: sessionsQuery.continueCursor,
+      }));
+    }
+  }, [sessionsQuery]);
 
   // 提问 - 使用 useCallback 稳定引用
   const askQuestion = useCallback(
@@ -102,6 +150,11 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
         await deleteSessionMutation({
           sessionId: sessionIdToDelete as Id<"sessions">,
         });
+
+        // 从本地状态中移除已删除的session
+        setAllSessions((prev) =>
+          prev.filter((session) => session._id !== sessionIdToDelete)
+        );
       } catch (error) {
         console.error("Failed to delete session:", error);
         throw error;
@@ -189,6 +242,7 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
     },
     [createSessionMutation, generateExplanation]
   );
+
   return {
     sessions,
     currentSession,
@@ -197,6 +251,9 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
     isLoadingSessions,
     isLoadingCurrentSession,
     isLoadingExplanations,
+    loadMoreSessions,
+    hasMoreSessions,
+    isLoadingMoreSessions,
     askQuestion,
     createNewSession,
     deleteSession,

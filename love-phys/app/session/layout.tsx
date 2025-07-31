@@ -11,7 +11,13 @@ interface SessionLayoutProps {
 export default function SessionLayout({ children }: SessionLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { sessions, deleteSession } = usePhysics();
+  const {
+    sessions,
+    deleteSession,
+    loadMoreSessions,
+    hasMoreSessions,
+    isLoadingMoreSessions,
+  } = usePhysics();
 
   // 从路径中提取 sessionId
   const activeSessionId = pathname.match(/^\/session\/([^\/]+)$/)?.[1];
@@ -75,6 +81,9 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
         onSessionSelect={handleSessionSelect}
         onNewSession={handleNewSession}
         onDeleteSession={handleDeleteSession}
+        onLoadMore={loadMoreSessions}
+        hasMore={hasMoreSessions}
+        isLoadingMore={isLoadingMoreSessions}
       />
 
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">

@@ -156,3 +156,32 @@ export const getUsedCategories = query({
     }));
   },
 });
+
+export const getSessionsPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, { paginationOpts }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return {
+        page: [],
+        continueCursor: null,
+        isDone: true,
+      };
+    }
+
+    // 使用 Convex 官方的 paginate 方法
+    const result = await ctx.db
+      .query("sessions")
+      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+      .order("desc")
+      .paginate(paginationOpts);
+
+    return result;
+    // result 包含:
+    // - page: 当前页的数据数组
+    // - continueCursor: 下一页的游标（字符串）
+    // - isDone: 是否已经到最后一页
+  },
+});
