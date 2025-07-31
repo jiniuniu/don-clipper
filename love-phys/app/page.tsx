@@ -150,14 +150,7 @@ export default function HomePage() {
         {/* Bottom CTA */}
         <div className="text-center mt-16 p-8 bg-white/60 backdrop-blur rounded-lg">
           <h3 className="text-2xl font-bold mb-4">Ready to Explore More?</h3>
-          <p className="text-gray-600 mb-6">
-            Join our community and create your own physics explanations
-          </p>
-          <Button
-            onClick={handleGetStarted}
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700"
-          >
+          <Button onClick={handleGetStarted} size="lg">
             {isSignedIn ? "Go to Dashboard" : "Get Started for Free"}
           </Button>
         </div>

@@ -53,12 +53,7 @@ export function TopBar() {
               <UserAvatar />
             ) : (
               // Not signed in - show get started button
-              <Button
-                onClick={handleGetStarted}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Get Started
-              </Button>
+              <Button onClick={handleGetStarted}>Get Started</Button>
             )}
           </div>
         </div>
