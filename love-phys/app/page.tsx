@@ -38,7 +38,7 @@ export default function HomePage() {
   // 加载状态
   if (!isLoaded) {
     return (
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center min-h-full">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Loading...</p>
@@ -46,7 +46,6 @@ export default function HomePage() {
       </div>
     );
   }
-
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-full">
       <div className="max-w-7xl mx-auto px-6 py-12">
