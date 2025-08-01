@@ -20,6 +20,27 @@ export const SVG_PROMPT_TMPL = `You are a professional physics diagram designer 
   - Animation transform values' positive/negative directions must align with physical intuition (upward movement uses negative Y values)
   - Ensure motion starts from physically correct initial states, not arbitrary mid-positions
 
+## Spatial Layout Strategy
+### **Phase Positioning Guidelines**
+- **Sequential Animations**: Plan distinct screen regions for each phase's explanatory text
+  - Phase 1: Left region (x=50-300)
+  - Phase 2: Center region (x=350-650) 
+  - Phase 3: Right region (x=700-950)
+  - Additional phases: Use top/bottom regions or corners (y=50-150 for top, y=400-500 for bottom)
+  
+### **Text Placement Rules**
+- **Never overlap text elements** from different animation phases
+- **Reserve dedicated zones** for phase descriptions (top corners, side margins)
+- **Maintain consistent text anchoring** within each zone
+- **Consider text bounding boxes** when planning animations
+
+### **Layout Planning Checklist**
+Before creating SVG, explicitly plan:
+1. Which screen regions each phase will use for text
+2. How many simultaneous text elements will be visible
+3. Whether any animations might cause text to intersect
+4. Fallback positioning for complex multi-phase sequences
+
 ## Animation Design Strategy
 ### **Educational Animation Principles**
 - **Phase-based Design**: For multi-step phenomena, design distinct phases that can be easily understood
@@ -48,6 +69,20 @@ export const SVG_PROMPT_TMPL = `You are a professional physics diagram designer 
 - Elements remain visible once introduced
 - Each new phase adds to existing content
 - Best for: Building complex systems step by step
+
+### **Animation Coordination Requirements**
+- **Text Positioning**: Each phase's explanatory text must have dedicated screen coordinates
+- **Overlap Prevention**: Use transform or absolute positioning to separate concurrent text
+- **Reading Flow**: Position text to guide natural reading progression (left→right, top→bottom)
+- **Visual Hierarchy**: Primary phase text should be most prominent, secondary text smaller/lower contrast
+
+### **Multi-Phase Animation Implementation**
+**Critical Rule**: When using opacity-based phase transitions, assign unique coordinates to each phase's text elements.
+
+**Alternative Approaches**:
+- **Vertical Stacking**: Use different Y coordinates (y=80, y=200, y=320)
+- **Corner Placement**: Utilize all four corners for up to 4 phases
+- **Dynamic Positioning**: Use <animateTransform> to move text to different positions
 
 ### **Animation Effects**
 - Use <animateTransform>, <animate>, <animateMotion> tags appropriately
@@ -124,6 +159,15 @@ export const SVG_PROMPT_TMPL = `You are a professional physics diagram designer 
 | Comparisons | Persistent display | Static or synchronized |
 | Complex systems | Layered revelation | 5-8 sec per layer |
 
+## Layout Validation Checklist
+Before finalizing SVG design:
+- [ ] No text elements share the same coordinates across different phases
+- [ ] All text remains within viewBox boundaries throughout animation
+- [ ] Text contrast is sufficient against background in all phases
+- [ ] Reading time matches animation phase duration
+- [ ] Text positioning follows natural reading flow
+- [ ] Critical information is never obscured by overlapping elements
+
 ## SVG Format Requirements
 - **JSON Safety**: All double quotes in SVG code must be replaced with single quotes
 - **Escape Characters**: Avoid backslashes, newlines, and other special characters
@@ -142,6 +186,9 @@ Before creating the SVG, explicitly consider:
 2. **How much text/information needs reading time?**
 3. **Would users benefit from seeing multiple states simultaneously?**
 4. **What is the optimal balance between animation complexity and educational clarity?**
+5. **How many distinct text regions are needed for all phases?**
+6. **Where will each phase's explanatory text be positioned to avoid overlaps?**
+7. **Do any animations risk causing text collisions?**
 
 ## Input Information
 **User Question**: {question}
@@ -150,7 +197,7 @@ Before creating the SVG, explicitly consider:
 
 **Related Phenomena**: {relatedPhenomena}
 
-Please create an accurate, clear, and educational SVG physics demonstration diagram. Consider the animation timing strategy most appropriate for this specific phenomenon.
+Please create an accurate, clear, and educational SVG physics demonstration diagram. Consider the animation timing strategy most appropriate for this specific phenomenon. CRITICAL: Plan text positioning for each phase to prevent overlaps.
 
 {format_instructions}`;
 

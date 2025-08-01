@@ -66,12 +66,7 @@ export function Sidebar({
 
   return (
     <>
-      <div
-        className={cn(
-          "w-80 border-r bg-muted/50 flex flex-col h-full",
-          className
-        )}
-      >
+      <div className={cn("w-80 border-r flex flex-col h-full", className)}>
         {/* Header - Fixed height */}
         <div className="p-4 space-y-4 shrink-0">
           <div className="space-y-2">

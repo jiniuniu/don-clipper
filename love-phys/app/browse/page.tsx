@@ -51,7 +51,7 @@ export default function BrowsePage() {
             <div className="flex flex-wrap justify-center gap-2">
               <Badge
                 variant={selectedCategory === "" ? "default" : "outline"}
-                className="cursor-pointer hover:scale-105 transition-transform"
+                className="cursor-pointer hover:scale-105 transition-transform text-sm"
                 onClick={() => setSelectedCategory("")}
               >
                 All Categories
@@ -62,7 +62,7 @@ export default function BrowsePage() {
                   variant={
                     selectedCategory === category ? "default" : "outline"
                   }
-                  className="cursor-pointer hover:scale-105 transition-transform"
+                  className="cursor-pointer hover:scale-105 transition-transform text-sm"
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category.replace(/_/g, " ")} ({count})
