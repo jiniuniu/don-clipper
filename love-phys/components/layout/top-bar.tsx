@@ -31,6 +31,12 @@ export function TopBar() {
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center space-x-6">
+              <Link
+                href="/browse"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Browse
+              </Link>
               {/* Dashboard link only for signed in users */}
               {isLoaded && isSignedIn && (
                 <Link

@@ -94,8 +94,9 @@ export const getPublicExplanations = query({
   args: {
     paginationOpts: paginationOptsValidator,
     category: v.optional(v.string()),
+    requireSlug: v.optional(v.boolean()), // 新增参数：是否要求有 slug
   },
-  handler: async (ctx, { paginationOpts, category }) => {
+  handler: async (ctx, { paginationOpts, category, requireSlug = false }) => {
     let queryBuilder = ctx.db
       .query("explanations")
       .withIndex("by_public", (q) => q.eq("isPublic", true));
@@ -107,6 +108,13 @@ export const getPublicExplanations = query({
         .withIndex("by_category", (q) =>
           q.eq("category", category).eq("isPublic", true)
         );
+    }
+
+    // 如果要求有 slug，添加过滤条件
+    if (requireSlug) {
+      queryBuilder = queryBuilder.filter((q) =>
+        q.neq(q.field("slug"), undefined)
+      );
     }
 
     // 使用 Convex 官方的 paginate 方法
@@ -137,12 +145,13 @@ export const getPublicExplanation = query({
 export const getUsedCategories = query({
   args: {},
   handler: async (ctx) => {
+    // 只统计有 slug 且公开的内容
     const explanations = await ctx.db
       .query("explanations")
       .withIndex("by_public", (q) => q.eq("isPublic", true))
+      .filter((q) => q.neq(q.field("slug"), undefined))
       .collect();
 
-    // 统计使用的分类
     const categoryCount: Record<string, number> = {};
     explanations.forEach((exp) => {
       if (exp.category) {
@@ -183,5 +192,18 @@ export const getSessionsPaginated = query({
     // - page: 当前页的数据数组
     // - continueCursor: 下一页的游标（字符串）
     // - isDone: 是否已经到最后一页
+  },
+});
+
+export const getPublicExplanationBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, { slug }) => {
+    const explanation = await ctx.db
+      .query("explanations")
+      .withIndex("by_slug", (q) => q.eq("slug", slug))
+      .filter((q) => q.eq(q.field("isPublic"), true))
+      .first();
+
+    return explanation;
   },
 });

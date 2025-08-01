@@ -116,6 +116,7 @@ export const updateExplanation = mutation({
     isPublic: v.optional(v.boolean()),
     category: v.optional(v.string()),
     subcategory: v.optional(v.string()),
+    slug: v.optional(v.string()),
   },
   handler: async (ctx, { explanationId, ...updates }) => {
     const identity = await ctx.auth.getUserIdentity();

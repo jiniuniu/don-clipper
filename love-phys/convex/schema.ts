@@ -12,6 +12,7 @@ export default defineSchema({
   explanations: defineTable({
     sessionId: v.id("sessions"),
     question: v.string(),
+    slug: v.optional(v.string()),
     svgCode: v.optional(v.string()),
     explanation: v.optional(v.string()),
     relatedPhenomena: v.optional(v.array(v.string())),
@@ -30,5 +31,6 @@ export default defineSchema({
   })
     .index("by_session", ["sessionId"])
     .index("by_public", ["isPublic"])
-    .index("by_category", ["category", "isPublic"]),
+    .index("by_category", ["category", "isPublic"])
+    .index("by_slug", ["slug"]),
 });

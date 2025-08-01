@@ -10,7 +10,7 @@ import { RelatedPhenomena } from "./related-phenomena";
 import { FurtherQuestions } from "./further-questions";
 import { LoadingExplanation } from "./loading-status";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, AlertCircle, Clock } from "lucide-react";
+import { RotateCcw, AlertCircle } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -18,25 +18,21 @@ interface ExplanationCardProps {
   explanation: Explanation;
   onQuestionClick: (question: string) => void;
   onRetry?: (explanationId: string) => void;
+  viewMode?: "default" | "detail";
+  className?: string;
 }
 
 export function ExplanationCard({
   explanation,
   onQuestionClick,
   onRetry,
+  viewMode = "default",
+  className = "",
 }: ExplanationCardProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   // Convex mutation for updating explanation
   const updateExplanation = useMutation(api.mutations.updateExplanation);
-
-  const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString("zh-CN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const handleSvgSave = async (updates: {
     svgCode?: string;
     isPublic?: boolean;
@@ -45,10 +41,22 @@ export function ExplanationCard({
   }) => {
     setIsSaving(true);
     try {
-      await updateExplanation({
-        explanationId: explanation._id,
-        ...updates,
-      });
+      // 如果要设为公开且还没有 slug，生成一个
+      if (updates.isPublic && !explanation.slug) {
+        const { generateSlug } = await import("@/lib/slug-generator");
+        const slug = generateSlug(explanation.question);
+
+        await updateExplanation({
+          explanationId: explanation._id,
+          slug, // 添加生成的 slug
+          ...updates,
+        });
+      } else {
+        await updateExplanation({
+          explanationId: explanation._id,
+          ...updates,
+        });
+      }
     } catch (error) {
       console.error("Failed to save updates:", error);
     } finally {
@@ -66,10 +74,6 @@ export function ExplanationCard({
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center justify-between">
             <span className="flex items-center">📋 {explanation.question}</span>
-            <span className="text-xs text-muted-foreground font-normal flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              {formatTime(explanation.createdAt)}
-            </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -85,10 +89,6 @@ export function ExplanationCard({
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center justify-between">
             <span className="flex items-center">📋 {explanation.question}</span>
-            <span className="text-xs text-muted-foreground font-normal flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              {formatTime(explanation.createdAt)}
-            </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -124,25 +124,23 @@ export function ExplanationCard({
 
   // 成功状态 - 所有用户都可以编辑 SVG
   return (
-    <Card className="transition-all duration-200 hover:shadow-md">
-      <CardHeader className="pb-4">
+    <Card
+      className={`transition-all duration-200 hover:shadow-md ${className}`}
+    >
+      <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
           <span className="flex items-center">📋 {explanation.question}</span>
-          <span className="text-xs text-muted-foreground font-normal flex items-center">
-            <Clock className="h-3 w-3 mr-1" />
-            {formatTime(explanation.createdAt)}
-          </span>
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-2">
         {/* SVG 图示 - 带编辑功能 */}
         {explanation.svgCode && (
           <SVGDisplay
             svgCode={explanation.svgCode}
             title={explanation.question}
-            editable={true}
-            onSave={handleSvgSave} // 需要修改这个函数来处理新的参数结构
+            editable={viewMode === "default"}
+            onSave={handleSvgSave}
             requireAdmin={true}
             isSaving={isSaving}
             currentSettings={{
@@ -166,13 +164,33 @@ export function ExplanationCard({
               <RelatedPhenomena phenomena={explanation.relatedPhenomena} />
             )}
 
-          {/* 延伸问题 */}
+          {/* 延伸问题 - 根据视图模式显示不同样式 */}
           {explanation.furtherQuestions &&
             explanation.furtherQuestions.length > 0 && (
-              <FurtherQuestions
-                questions={explanation.furtherQuestions}
-                onQuestionClick={onQuestionClick}
-              />
+              <>
+                {viewMode === "default" ? (
+                  <FurtherQuestions
+                    questions={explanation.furtherQuestions}
+                    onQuestionClick={onQuestionClick}
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    <h3 className="text-base font-semibold flex items-center text-primary">
+                      ❓ Related Questions
+                    </h3>
+                    <div className="space-y-2">
+                      {explanation.furtherQuestions.map((question, index) => (
+                        <div
+                          key={index}
+                          className="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg"
+                        >
+                          {question}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
         </div>
       </CardContent>

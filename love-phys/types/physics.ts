@@ -25,4 +25,5 @@ export interface Explanation {
   isPublic?: boolean;
   category?: string;
   subcategory?: string;
+  slug?: string;
 }
