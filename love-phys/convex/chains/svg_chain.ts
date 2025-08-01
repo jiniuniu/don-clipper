@@ -201,6 +201,48 @@ Please create an accurate, clear, and educational SVG physics demonstration diag
 
 {format_instructions}`;
 
+export const SVG_PROMPT_TMPL_SIMPLE = `Create an educational SVG physics diagram based on the provided explanation.
+
+## Core Requirements
+
+### Technical Setup
+- Use viewBox='0 0 1000 600' with responsive design
+- Replace all double quotes with single quotes for JSON safety
+- Include <title> and <desc> tags for accessibility
+
+### Animation Strategy
+Choose the most appropriate approach:
+- **Simple Motion**: Continuous loops (3-6 sec cycles) for waves, rotation, oscillation
+- **Multi-Step Process**: Sequential phases (4-6 sec per phase) for complex phenomena
+- **Comparisons**: Side-by-side layout for different states/conditions
+
+### Physics Accuracy
+- Correct initial positions (objects start from physically realistic locations)
+- Proper coordinate system (Y+ downward in SVG, but animations should feel natural)
+- Accurate proportions, forces, and directions
+- Follow conservation laws and physical principles
+
+### Visual Design
+- **Colors**: Red=hot/positive, Blue=cold/negative, Green=velocity, Yellow=energy
+- **Text**: 12-16px main text, 10-12px labels, ensure readability
+- **Layout**: Prevent text overlaps - use different regions for each phase
+- **Animations**: Smooth, educational pacing with adequate viewing time
+
+### Critical Layout Rule
+**Text Positioning**: Each animation phase must use different screen coordinates to prevent overlaps:
+- Phase 1: Left region (x=50-300)
+- Phase 2: Center region (x=350-650)  
+- Phase 3: Right region (x=700-950)
+
+## Input Information
+**Question**: {question}
+**Explanation**: {explanation}
+**Related**: {relatedPhenomena}
+
+Create a clear, accurate SVG that demonstrates the physics concept effectively.
+
+{format_instructions}`;
+
 export async function createSVGLLM() {
   return new ChatOpenAI({
     apiKey: process.env.OPENROUTER_API_KEY!,
@@ -220,7 +262,7 @@ export async function generateSVGFromContent(
   const llm = await createSVGLLM();
   const parser = StructuredOutputParser.fromZodSchema(SVGGenerationSchema);
 
-  const prompt = PromptTemplate.fromTemplate(SVG_PROMPT_TMPL);
+  const prompt = PromptTemplate.fromTemplate(SVG_PROMPT_TMPL_SIMPLE);
   const chain = prompt.pipe(llm).pipe(parser);
 
   return await chain.invoke({
