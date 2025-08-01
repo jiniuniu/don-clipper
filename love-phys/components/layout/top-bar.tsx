@@ -3,20 +3,36 @@
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/layout/user-avatar";
 import { APP_NAME } from "@/lib/constants";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 
 export function TopBar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isSignedIn, isLoaded } = useUser();
 
   const handleGetStarted = () => {
     router.push("/session");
   };
 
+  // Helper function to determine if a link is active
+  const isActiveLink = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(href);
+  };
+
+  // Ghost button variant based on active state
+  const getButtonVariant = (href: string) =>
+    isActiveLink(href) ? "default" : "ghost";
+
+  const getButtonClassName = (href: string) =>
+    isActiveLink(href) ? "bg-gray-900/80 text-white hover:bg-gray-900/90" : "";
+
   return (
-    <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+    <header className="bg-white/10 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left side - Logo and Navigation */}
@@ -30,21 +46,23 @@ export function TopBar() {
             </Link>
 
             {/* Navigation Links */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link
-                href="/browse"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+            <nav className="hidden md:flex items-center space-x-2">
+              <Button
+                variant={getButtonVariant("/browse")}
+                className={getButtonClassName("/browse")}
+                asChild
               >
-                Browse
-              </Link>
+                <Link href="/browse">Browse</Link>
+              </Button>
               {/* Dashboard link only for signed in users */}
               {isLoaded && isSignedIn && (
-                <Link
-                  href="/session"
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                <Button
+                  variant={getButtonVariant("/session")}
+                  className={getButtonClassName("/session")}
+                  asChild
                 >
-                  dashboard
-                </Link>
+                  <Link href="/session">Dashboard</Link>
+                </Button>
               )}
             </nav>
           </div>
@@ -59,33 +77,41 @@ export function TopBar() {
               <UserAvatar />
             ) : (
               // Not signed in - show get started button
-              <Button onClick={handleGetStarted}>Get Started</Button>
+              <Button variant="ghost" onClick={handleGetStarted}>
+                Get Started
+              </Button>
             )}
           </div>
         </div>
 
         {/* Mobile Navigation */}
         <div className="md:hidden pb-4">
-          <nav className="flex items-center space-x-4">
-            <Link
-              href="/browse"
-              className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+          <nav className="flex items-center space-x-2">
+            <Button
+              variant={getButtonVariant("/browse")}
+              className={getButtonClassName("/browse")}
+              size="sm"
+              asChild
             >
-              Browse
-            </Link>
-            <Link
-              href="/about"
-              className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+              <Link href="/browse">Browse</Link>
+            </Button>
+            <Button
+              variant={getButtonVariant("/about")}
+              className={getButtonClassName("/about")}
+              size="sm"
+              asChild
             >
-              About
-            </Link>
+              <Link href="/about">About</Link>
+            </Button>
             {isLoaded && isSignedIn && (
-              <Link
-                href="/dashboard"
-                className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+              <Button
+                variant={getButtonVariant("/session")}
+                className={getButtonClassName("/session")}
+                size="sm"
+                asChild
               >
-                Dashboard
-              </Link>
+                <Link href="/session">Dashboard</Link>
+              </Button>
             )}
           </nav>
         </div>

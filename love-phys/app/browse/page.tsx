@@ -8,8 +8,7 @@ import { ExplanationPreviewCard } from "@/components/explanation/explanation-pre
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/convex/_generated/api";
-import { Loader2, Filter } from "lucide-react";
-import { PHYSICS_CATEGORIES } from "@/lib/constants";
+import { Loader2 } from "lucide-react";
 
 export default function BrowsePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -55,7 +54,7 @@ export default function BrowsePage() {
                 className="cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => setSelectedCategory("")}
               >
-                All Categories ({explanations?.length || 0})
+                All Categories
               </Badge>
               {categoriesData.map(({ category, count }) => (
                 <Badge
@@ -137,34 +136,6 @@ export default function BrowsePage() {
             )}
           </>
         )}
-
-        {/* Category Guide */}
-        <div className="mt-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-            <Filter className="mr-2 h-6 w-6" />
-            Physics Categories
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(PHYSICS_CATEGORIES)
-              .slice(0, 6)
-              .map(([key, subcategories]) => (
-                <div key={key} className="space-y-2">
-                  <h3 className="font-semibold text-gray-800 capitalize">
-                    {key.replace(/_/g, " ")}
-                  </h3>
-                  <div className="text-sm text-gray-600">
-                    {subcategories.slice(0, 3).map((sub, idx) => (
-                      <span key={sub}>
-                        {sub.replace(/_/g, " ")}
-                        {idx < 2 && idx < subcategories.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                    {subcategories.length > 3 && "..."}
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
       </div>
     </div>
   );

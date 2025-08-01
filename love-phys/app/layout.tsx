@@ -34,7 +34,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ClerkProvider>
           <ConvexProvider>
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-indigo-100">
               <TopBar />
               <main className="flex-1">{children}</main>
             </div>
