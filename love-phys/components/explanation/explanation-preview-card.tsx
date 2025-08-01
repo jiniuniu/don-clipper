@@ -26,10 +26,7 @@ export function ExplanationPreviewCard({
 }: ExplanationPreviewCardProps) {
   const [hasError, setHasError] = useState(false);
 
-  // 使用 slug 如果存在，否则回退到 ID
-  const href = explanation.slug
-    ? `/browse/${explanation.slug}`
-    : `/browse/${explanation._id}`;
+  const href = `/${explanation.slug}`;
 
   return (
     <Link href={href}>

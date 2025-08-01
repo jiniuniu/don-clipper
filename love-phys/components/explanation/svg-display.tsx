@@ -277,7 +277,7 @@ export function SVGDisplay({
 
             {/* SVG 内容 */}
             <div
-              className="w-full max-h-[600px] overflow-hidden flex items-center justify-center"
+              className="w-full overflow-hidden flex items-center justify-center"
               dangerouslySetInnerHTML={{ __html: svgCode }}
               onError={() => setHasError(true)}
             />

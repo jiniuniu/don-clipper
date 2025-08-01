@@ -1,4 +1,4 @@
-// components/explanation/explanation-card.tsx - 修复版本
+// components/explanation/explanation-card.tsx - 添加分享按钮版本
 "use client";
 
 import React, { useState } from "react";
@@ -10,7 +10,7 @@ import { RelatedPhenomena } from "./related-phenomena";
 import { FurtherQuestions } from "./further-questions";
 import { LoadingExplanation } from "./loading-status";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, AlertCircle } from "lucide-react";
+import { RotateCcw, AlertCircle, Share2 } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -18,6 +18,7 @@ interface ExplanationCardProps {
   explanation: Explanation;
   onQuestionClick: (question: string) => void;
   onRetry?: (explanationId: string) => void;
+  onShare?: (explanation: Explanation) => void; // 新增分享回调
   viewMode?: "default" | "detail";
   className?: string;
 }
@@ -26,6 +27,7 @@ export function ExplanationCard({
   explanation,
   onQuestionClick,
   onRetry,
+  onShare, // 新增分享回调参数
   viewMode = "default",
   className = "",
 }: ExplanationCardProps) {
@@ -33,6 +35,7 @@ export function ExplanationCard({
 
   // Convex mutation for updating explanation
   const updateExplanation = useMutation(api.mutations.updateExplanation);
+
   const handleSvgSave = async (updates: {
     svgCode?: string;
     isPublic?: boolean;
@@ -64,6 +67,13 @@ export function ExplanationCard({
     }
   };
 
+  // 分享按钮点击处理
+  const handleShare = () => {
+    if (onShare) {
+      onShare(explanation);
+    }
+  };
+
   if (
     explanation.status === "generating" ||
     explanation.status === "content_completed" ||
@@ -74,6 +84,7 @@ export function ExplanationCard({
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center justify-between">
             <span className="flex items-center">📋 {explanation.question}</span>
+            {/* 加载状态时不显示分享按钮 */}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -89,6 +100,7 @@ export function ExplanationCard({
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center justify-between">
             <span className="flex items-center">📋 {explanation.question}</span>
+            {/* 失败状态时不显示分享按钮 */}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -122,7 +134,6 @@ export function ExplanationCard({
     );
   }
 
-  // 成功状态 - 所有用户都可以编辑 SVG
   return (
     <Card
       className={`transition-all duration-200 hover:shadow-md ${className}`}
@@ -130,6 +141,18 @@ export function ExplanationCard({
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
           <span className="flex items-center">📋 {explanation.question}</span>
+          {/* 分享按钮 - 只在成功状态显示 */}
+          {onShare && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleShare}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              title="分享这个解释"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
 
