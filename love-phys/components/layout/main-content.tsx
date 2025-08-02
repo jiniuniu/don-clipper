@@ -75,7 +75,7 @@ export function MainContent({
       });
 
       // 生成分享链接并显示在 modal 中
-      const url = `${window.location.origin}/share/${slug}`;
+      const url = `${window.location.origin}/${slug}`;
       setShareUrl(url);
     } catch (error) {
       console.error("Share failed:", error);
