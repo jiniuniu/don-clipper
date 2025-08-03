@@ -6,11 +6,21 @@ import { APP_NAME } from "@/lib/constants";
 import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export function TopBar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isSignedIn, isLoaded } = useUser();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleGetStarted = () => {
     router.push("/session");
@@ -31,6 +41,13 @@ export function TopBar() {
   const getButtonClassName = (href: string) =>
     isActiveLink(href) ? "bg-gray-900/80 text-white hover:bg-gray-900/90" : "";
 
+  const navigationItems = [
+    { href: "/browse", label: "Browse" },
+    ...(isLoaded && isSignedIn
+      ? [{ href: "/session", label: "Dashboard" }]
+      : []),
+  ];
+
   return (
     <header className="bg-white/10 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,7 +62,7 @@ export function TopBar() {
               </span>
             </Link>
 
-            {/* Navigation Links */}
+            {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center space-x-2">
               <Button
                 variant={getButtonVariant("/browse")}
@@ -67,8 +84,66 @@ export function TopBar() {
             </nav>
           </div>
 
-          {/* Right side - User actions */}
-          <div className="flex items-center">
+          {/* Right side - User actions and Mobile Menu */}
+          <div className="flex items-center space-x-2">
+            {/* Mobile Navigation Dropdown */}
+            <div className="md:hidden">
+              <DropdownMenu
+                open={isMobileMenuOpen}
+                onOpenChange={setIsMobileMenuOpen}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-2"
+                    aria-label="Toggle navigation menu"
+                  >
+                    {isMobileMenuOpen ? (
+                      <X className="h-5 w-5" />
+                    ) : (
+                      <Menu className="h-5 w-5" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {navigationItems.map((item) => (
+                    <DropdownMenuItem
+                      key={item.href}
+                      asChild
+                      className={`cursor-pointer ${
+                        isActiveLink(item.href)
+                          ? "bg-gray-100 text-gray-900 font-medium"
+                          : ""
+                      }`}
+                    >
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  {!isSignedIn && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => {
+                          handleGetStarted();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        Get Started
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* User Avatar/Actions - Desktop and Mobile */}
             {!isLoaded ? (
               // Loading state
               <div className="h-8 w-20 bg-muted animate-pulse rounded" />
@@ -76,36 +151,16 @@ export function TopBar() {
               // Signed in - show user avatar
               <UserAvatar />
             ) : (
-              // Not signed in - show get started button
-              <Button variant="ghost" onClick={handleGetStarted}>
+              // Not signed in - show get started button (desktop only)
+              <Button
+                variant="ghost"
+                onClick={handleGetStarted}
+                className="hidden md:flex"
+              >
                 Get Started
               </Button>
             )}
           </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden pb-3 pt-1">
-          <nav className="flex items-center justify-center space-x-4">
-            <Button
-              variant={getButtonVariant("/browse")}
-              className={getButtonClassName("/browse")}
-              size="sm"
-              asChild
-            >
-              <Link href="/browse">Browse</Link>
-            </Button>
-            {isLoaded && isSignedIn && (
-              <Button
-                variant={getButtonVariant("/session")}
-                className={getButtonClassName("/session")}
-                size="sm"
-                asChild
-              >
-                <Link href="/session">Chat</Link>
-              </Button>
-            )}
-          </nav>
         </div>
       </div>
     </header>

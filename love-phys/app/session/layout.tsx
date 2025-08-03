@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Plus } from "lucide-react";
+import { Menu } from "lucide-react";
 
 interface SessionLayoutProps {
   children: React.ReactNode;
@@ -127,12 +127,7 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
           <Button variant="ghost" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="font-semibold">Physics Chat</h1>
-          <Button variant="ghost" onClick={handleNewSession}>
-            <Plus className="h-5 w-5" />
-          </Button>
         </div>
-
         {children}
       </div>
     </div>
