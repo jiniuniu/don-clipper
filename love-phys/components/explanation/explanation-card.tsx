@@ -138,8 +138,8 @@ export function ExplanationCard({
     <Card
       className={`transition-all duration-200 hover:shadow-md ${className}`}
     >
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center justify-between">
+      <CardHeader className="pb-2 px-4 md:px-6">
+        <CardTitle className="text-base md:text-lg flex items-start md:items-center justify-between gap-2">
           <span className="flex items-center">📋 {explanation.question}</span>
           {/* 分享按钮 - 只在成功状态显示 */}
           {onShare && (
@@ -147,8 +147,8 @@ export function ExplanationCard({
               variant="ghost"
               size="sm"
               onClick={handleShare}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              title="分享这个解释"
+              className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] md:min-h-auto shrink-0"
+              title="share this explanation"
             >
               <Share2 className="h-4 w-4" />
             </Button>
@@ -156,7 +156,7 @@ export function ExplanationCard({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 px-4 md:px-6">
         {/* SVG 图示 - 带编辑功能 */}
         {explanation.svgCode && (
           <SVGDisplay

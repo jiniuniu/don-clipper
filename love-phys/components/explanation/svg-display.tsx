@@ -273,11 +273,12 @@ export function SVGDisplay({
               isAdmin={isAdmin}
               onEdit={toggleEdit}
               onFullscreen={toggleFullscreen}
+              className="md:opacity-0 md:group-hover:opacity-100"
             />
 
             {/* SVG 内容 */}
             <div
-              className="w-full overflow-hidden flex items-center justify-center"
+              className="w-full overflow-hidden flex items-center justify-center p-2 md:p-4 min-h-[200px] md:min-h-[300px]"
               dangerouslySetInnerHTML={{ __html: svgCode }}
               onError={() => setHasError(true)}
             />

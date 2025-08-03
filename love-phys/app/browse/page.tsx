@@ -46,7 +46,7 @@ export default function BrowsePage() {
         </div>
 
         {/* Category Filter */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           {categoriesData && categoriesData.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2">
               <Badge
@@ -62,7 +62,7 @@ export default function BrowsePage() {
                   variant={
                     selectedCategory === category ? "default" : "outline"
                   }
-                  className="cursor-pointer hover:scale-105 transition-transform text-sm"
+                  className="cursor-pointer hover:scale-105 transition-transform text-xs md:text-sm py-2 px-3"
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category.replace(/_/g, " ")} ({count})
@@ -103,7 +103,7 @@ export default function BrowsePage() {
         {/* Explanations Grid */}
         {explanations && explanations.length > 0 && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
               {explanations.map((explanation) => (
                 <ExplanationPreviewCard
                   key={explanation._id}

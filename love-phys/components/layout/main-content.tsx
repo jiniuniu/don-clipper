@@ -121,7 +121,7 @@ export function MainContent({
 
       {/* 底部固定输入框 */}
       <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-4xl mx-auto p-4">
+        <div className="max-w-4xl mx-auto p-4 pb-6 md:pb-4">
           <ChatInput
             onSubmit={onAskQuestion}
             disabled={isGenerating}

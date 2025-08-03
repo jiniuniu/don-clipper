@@ -40,7 +40,7 @@ export function TopBar() {
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
               <span className="text-2xl">🔬</span>
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl md:text-xl font-bold text-gray-900 hidden sm:block">
                 {APP_NAME}
               </span>
             </Link>
@@ -85,8 +85,8 @@ export function TopBar() {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden pb-4">
-          <nav className="flex items-center space-x-2">
+        <div className="md:hidden pb-3 pt-1">
+          <nav className="flex items-center justify-center space-x-4">
             <Button
               variant={getButtonVariant("/browse")}
               className={getButtonClassName("/browse")}
@@ -95,14 +95,6 @@ export function TopBar() {
             >
               <Link href="/browse">Browse</Link>
             </Button>
-            <Button
-              variant={getButtonVariant("/about")}
-              className={getButtonClassName("/about")}
-              size="sm"
-              asChild
-            >
-              <Link href="/about">About</Link>
-            </Button>
             {isLoaded && isSignedIn && (
               <Button
                 variant={getButtonVariant("/session")}
@@ -110,7 +102,7 @@ export function TopBar() {
                 size="sm"
                 asChild
               >
-                <Link href="/session">Dashboard</Link>
+                <Link href="/session">Chat</Link>
               </Button>
             )}
           </nav>

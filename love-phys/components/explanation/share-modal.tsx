@@ -56,7 +56,7 @@ export function ShareModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-w-[95vw] mx-4">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5" />
@@ -138,18 +138,21 @@ export function ShareModal({
           )}
         </div>
 
-        <DialogHeader></DialogHeader>
-
         <DialogFooter className="gap-3 sm:gap-3 flex-col sm:flex-row">
           {!shareUrl ? (
             <>
-              <Button variant="outline" onClick={onCancel} disabled={isSharing}>
+              <Button
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSharing}
+                className="w-full sm:w-auto"
+              >
                 Cancel
               </Button>
               <Button
                 onClick={onConfirmShare}
                 disabled={isSharing}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
               >
                 {isSharing ? (
                   <>

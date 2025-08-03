@@ -329,3 +329,6 @@ Household Phenomena (家庭现象)
 
 - 手机端适配
 - 接支付
+- SEO 优化
+- 接google analytics
+- marketing 页面需要进一步优化

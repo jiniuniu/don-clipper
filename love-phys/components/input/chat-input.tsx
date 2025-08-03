@@ -52,7 +52,7 @@ export function ChatInput({
   return (
     <div className={`space-y-2 ${className}`}>
       {/* 输入区域 */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-end">
         <div className="flex-1 relative">
           <Textarea
             ref={textareaRef}
@@ -61,7 +61,7 @@ export function ChatInput({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={disabled}
-            className="min-h-[44px] max-h-[120px] resize-none pr-12 py-3"
+            className="min-h-[44px] md:min-h-[44px] max-h-[120px] resize-none pr-12 py-3 text-base md:text-sm"
             rows={1}
           />
 
@@ -79,7 +79,7 @@ export function ChatInput({
           onClick={handleSubmit}
           disabled={disabled || !question.trim()}
           size="lg"
-          className="px-4 self-end"
+          className="px-4 self-end min-h-[44px] min-w-[44px]"
         >
           {disabled ? (
             <Loader2 className="h-4 w-4 animate-spin" />

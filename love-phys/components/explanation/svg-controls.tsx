@@ -37,10 +37,10 @@ export function SVGControls({
           variant="secondary"
           size="sm"
           onClick={onEdit}
-          className="h-8 w-8 p-0 bg-background/80 backdrop-blur"
+          className="h-10 w-10 md:h-8 md:w-8 p-0 bg-background/80 backdrop-blur"
           title={`Edit SVG${requireAdmin ? " (Admin Only)" : ""}`}
         >
-          <Edit3 className="h-4 w-4" />
+          <Edit3 className="h-5 w-5 md:h-4 md:w-4" />
         </Button>
       )}
 
@@ -50,10 +50,10 @@ export function SVGControls({
           variant="secondary"
           size="sm"
           disabled
-          className="h-8 w-8 p-0 bg-background/80 backdrop-blur opacity-50"
+          className="h-10 w-10 md:h-8 md:w-8 p-0 bg-background/80 backdrop-blur"
           title="Admin Only"
         >
-          <Shield className="h-4 w-4" />
+          <Shield className="h-5 w-5 md:h-4 md:w-4" />
         </Button>
       )}
 
