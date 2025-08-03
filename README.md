@@ -327,20 +327,5 @@ Transportation (交通工具)
 Household Phenomena (家庭现象)
 ```
 
-1. 调整demo分类：
-
-- ELI5
-- aha moment
-  ...
-
-2. 样式适配移动端
-3. 分享，slug
-4. 首页大改
-5. 转视频发reddit
-6. reddit上找问题
-
-7. refactor
-
-- marketing page
-- browse
-- 改成slug
+- 手机端适配
+- 接支付

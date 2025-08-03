@@ -101,8 +101,8 @@ export const getPublicExplanations = query({
       .query("explanations")
       .withIndex("by_public", (q) => q.eq("isPublic", true));
 
-    // 如果指定了分类，进一步筛选
-    if (category) {
+    // 如果指定了分类且分类不为空，进一步筛选
+    if (category && category.trim() !== "") {
       queryBuilder = ctx.db
         .query("explanations")
         .withIndex("by_category", (q) =>
@@ -110,7 +110,16 @@ export const getPublicExplanations = query({
         );
     }
 
-    // 如果要求有 slug，添加过滤条件
+    // 添加过滤条件：category 不为空
+    queryBuilder = queryBuilder.filter((q) =>
+      q.and(
+        q.neq(q.field("category"), undefined),
+        q.neq(q.field("category"), null),
+        q.neq(q.field("category"), "")
+      )
+    );
+
+    // 如果要求有 slug，添加 slug 过滤条件
     if (requireSlug) {
       queryBuilder = queryBuilder.filter((q) =>
         q.neq(q.field("slug"), undefined)
