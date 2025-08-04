@@ -1,15 +1,8 @@
-// app/browse/[slug]/page.tsx
-"use client";
-
-import React, { use } from "react";
-import { useQuery } from "convex/react";
-import { ExplanationCard } from "@/components/explanation/explanation-card";
-import { Button } from "@/components/ui/button";
-import { api } from "@/convex/_generated/api";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { BrowseDetailClient } from "./browse-detail-client";
+import { api } from "@/convex/_generated/api";
+import { fetchQuery } from "convex/nextjs";
 
 interface BrowseDetailPageProps {
   params: Promise<{
@@ -17,73 +10,154 @@ interface BrowseDetailPageProps {
   }>;
 }
 
-// 验证slug格式
+// Server-side slug validation
 function isValidSlug(slug: string): boolean {
   return /^[a-z0-9-]+$/.test(slug) && slug.length > 0 && slug.length <= 60;
 }
 
-export default function BrowseDetailPage({ params }: BrowseDetailPageProps) {
-  const router = useRouter();
-  const resolvedParams = use(params);
+// Generate metadata for SEO
+export async function generateMetadata({
+  params,
+}: BrowseDetailPageProps): Promise<Metadata> {
+  const resolvedParams = await params;
 
-  // 验证slug格式
+  if (!isValidSlug(resolvedParams.slug)) {
+    return {
+      title: "Page Not Found",
+    };
+  }
+
+  try {
+    const explanation = await fetchQuery(
+      api.queries.getPublicExplanationBySlug,
+      {
+        slug: resolvedParams.slug,
+      }
+    );
+
+    if (!explanation) {
+      return {
+        title: "Explanation Not Found",
+      };
+    }
+
+    const title = `${explanation.question} - AI Explanation`;
+    const description = explanation.explanation
+      ? explanation.explanation.substring(0, 160) + "..."
+      : `Learn about ${explanation.question} with our AI-generated explanation.`;
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        type: "article",
+        url: `/${resolvedParams.slug}`,
+        siteName: "Love Physics",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+      alternates: {
+        canonical: `/${resolvedParams.slug}`,
+      },
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return {
+      title: "Error Loading Explanation",
+    };
+  }
+}
+
+export default async function BrowseDetailPage({
+  params,
+}: BrowseDetailPageProps) {
+  const resolvedParams = await params;
+
+  // Server-side validation
   if (!isValidSlug(resolvedParams.slug)) {
     notFound();
   }
 
-  const explanation = useQuery(api.queries.getPublicExplanationBySlug, {
-    slug: resolvedParams.slug,
-  });
-
-  // 加载状态
-  if (explanation === undefined) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Loading explanation...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 不存在或不公开
-  if (explanation === null) {
+  let explanation;
+  try {
+    explanation = await fetchQuery(api.queries.getPublicExplanationBySlug, {
+      slug: resolvedParams.slug,
+    });
+  } catch (error) {
+    console.error("Error fetching explanation:", error);
     notFound();
   }
 
-  const handleAskSimilar = () => {
-    router.push(`/session?q=${encodeURIComponent(explanation.question)}`);
+  if (!explanation) {
+    notFound();
+  }
+
+  // Generate structured data
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "QAPage",
+    mainEntity: {
+      "@type": "Question",
+      name: explanation.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: explanation.explanation || explanation.question,
+        dateCreated: new Date(explanation.createdAt).toISOString(),
+      },
+    },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Browse",
+          item: "/browse",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: explanation.question,
+          item: `/browse/${resolvedParams.slug}`,
+        },
+      ],
+    },
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {/* Navigation */}
-        <div className="m-2">
-          <Link href="/browse">
-            <Button variant="ghost">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Browse
-            </Button>
-          </Link>
-        </div>
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
 
-        {/* Explanation Card */}
-        <ExplanationCard
-          explanation={explanation}
-          onQuestionClick={handleAskSimilar}
-          className="bg-white/90 backdrop-blur shadow-lg"
-          viewMode="detail" // 新增的详情模式
-        />
+      {/* Main Content */}
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          {/* Server-rendered content with proper heading structure */}
+          <main>
+            <h1 className="sr-only">{explanation.question}</h1>
 
-        {/* SEO and Meta Info */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>This explanation was generated by AI and reviewed for accuracy.</p>
+            {/* Pass data to client component */}
+            <BrowseDetailClient
+              explanation={explanation}
+              slug={resolvedParams.slug}
+            />
+          </main>
         </div>
       </div>
-    </div>
+    </>
   );
 }
