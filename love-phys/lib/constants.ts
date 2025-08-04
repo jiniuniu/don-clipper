@@ -97,4 +97,12 @@ export const PHYSICS_CATEGORIES = {
     "cooking",
     "nature_phenomena",
   ],
+  modern_physics: [
+    "relativity",
+    "quantum_mechanics",
+    "atomic_physics",
+    "nuclear_physics",
+    "particle_physics",
+    "semiconductor_physics",
+  ],
 } as const;
