@@ -189,31 +189,12 @@ export function ExplanationCard({
 
           {/* 延伸问题 - 根据视图模式显示不同样式 */}
           {explanation.furtherQuestions &&
-            explanation.furtherQuestions.length > 0 && (
-              <>
-                {viewMode === "default" ? (
-                  <FurtherQuestions
-                    questions={explanation.furtherQuestions}
-                    onQuestionClick={onQuestionClick}
-                  />
-                ) : (
-                  <div className="space-y-3">
-                    <h3 className="text-base font-semibold flex items-center text-primary">
-                      ❓ Related Questions
-                    </h3>
-                    <div className="space-y-2">
-                      {explanation.furtherQuestions.map((question, index) => (
-                        <div
-                          key={index}
-                          className="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg"
-                        >
-                          {question}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
+            explanation.furtherQuestions.length > 0 &&
+            viewMode === "default" && (
+              <FurtherQuestions
+                questions={explanation.furtherQuestions}
+                onQuestionClick={onQuestionClick}
+              />
             )}
         </div>
       </CardContent>

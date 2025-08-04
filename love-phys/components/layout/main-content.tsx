@@ -48,7 +48,7 @@ export function MainContent({
 
     // 检查是否已经是公开的且有 slug
     if (explanation.isPublic && explanation.slug) {
-      const url = `${window.location.origin}/${explanation.slug}`;
+      const url = `${window.location.origin}/browse/${explanation.slug}`;
       setShareUrl(url);
     } else {
       setShareUrl(null);
@@ -75,7 +75,7 @@ export function MainContent({
       });
 
       // 生成分享链接并显示在 modal 中
-      const url = `${window.location.origin}/${slug}`;
+      const url = `${window.location.origin}/browse/${slug}`;
       setShareUrl(url);
     } catch (error) {
       console.error("Share failed:", error);

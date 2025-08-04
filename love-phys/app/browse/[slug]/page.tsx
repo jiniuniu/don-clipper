@@ -41,7 +41,7 @@ export async function generateMetadata({
       };
     }
 
-    const title = `${explanation.question} - AI Explanation`;
+    const title = `${explanation.question}`;
     const description = explanation.explanation
       ? explanation.explanation.substring(0, 160) + "..."
       : `Learn about ${explanation.question} with our AI-generated explanation.`;
@@ -53,7 +53,7 @@ export async function generateMetadata({
         title,
         description,
         type: "article",
-        url: `/${resolvedParams.slug}`,
+        url: `/browse/${resolvedParams.slug}`,
         siteName: "Love Physics",
       },
       twitter: {
@@ -66,7 +66,7 @@ export async function generateMetadata({
         follow: true,
       },
       alternates: {
-        canonical: `/${resolvedParams.slug}`,
+        canonical: `/browse/${resolvedParams.slug}`,
       },
     };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

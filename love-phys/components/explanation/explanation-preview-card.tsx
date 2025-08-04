@@ -26,7 +26,7 @@ export function ExplanationPreviewCard({
 }: ExplanationPreviewCardProps) {
   const [hasError, setHasError] = useState(false);
 
-  const href = `/${explanation.slug}`;
+  const href = `/browse/${explanation.slug}`;
 
   return (
     <Link href={href}>
