@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ animation_data.animation_title }}</title>
+    <link rel="stylesheet" href="/static/css/animation.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>{{ animation_data.animation_title }}</h1>
+
+      <div class="controls">
+        {% for scene in animation_data.scenes %}
+        <button onclick="showScene('{{ scene.scene_id }}')">
+          {{ loop.index }}. {{ scene.title }}
+        </button>
+        {% endfor %}
+        <button onclick="toggleScripts()">显示/隐藏脚本</button>
+        <button onclick="playAll()">播放全部</button>
+      </div>
+
+      {% for scene in animation_data.scenes %}
+      <div
+        id="{{ scene.scene_id }}"
+        class="scene layout-{{ scene.layout.type }}"
+      >
+        <h2>{{ scene.title }}</h2>
+        <div class="scene-content">
+          {% for area in scene.content_areas %}
+          <div
+            class="content-area"
+            style="grid-area: {{ area.grid_position }};"
+          >
+            {% if area.title %}
+            <h3>{{ area.title }}</h3>
+            {% endif %} {% if area.content_type == 'svg' %} {{ area.content |
+            safe }} {% elif area.content_type == 'html' %} {{ area.content |
+            safe }} {% else %}
+            <p>{{ area.content }}</p>
+            {% endif %} {% if area.caption %}
+            <small style="color: #ccc; margin-top: 10px"
+              >{{ area.caption }}</small
+            >
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="explanation">
+          <strong>{{ scene.explanation }}</strong>
+        </div>
+
+        <div class="script-panel" id="script-{{ scene.scene_id }}">
+          <strong>视频脚本：</strong> {{ scene.script }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 将场景ID传递给JavaScript -->
+    <script>
+      window.sceneIds = {{ animation_data.scenes | map(attribute='scene_id') | list | tojson }};
+    </script>
+    <script src="/static/js/animation.js"></script>
+  </body>
+</html>

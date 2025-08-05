@@ -1,0 +1,152 @@
+/* 动画页面样式 */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.scene {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    width: 900px;
+    height: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.scene h2 {
+    color: #ffeb3b;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scene-content {
+    flex: 1;
+    display: grid;
+    gap: 20px;
+    height: 400px;
+}
+
+/* 布局类型样式 */
+.layout-single .scene-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+
+.layout-dual .scene-content {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+.layout-triple .scene-content {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+.layout-vertical .scene-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.layout-mixed .scene-content {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 2fr 1fr;
+}
+
+.content-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.content-area h3 {
+    color: #ffeb3b;
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+}
+
+.content-area svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.explanation {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #ffeb3b;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+}
+
+.controls {
+    text-align: center;
+    margin: 30px 0;
+}
+
+button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    margin: 5px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.current-scene {
+    border: 2px solid #ffeb3b;
+    box-shadow: 0 0 20px rgba(255,235,59,0.3);
+}
+
+.script-panel {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border-left: 4px solid #4CAF50;
+    display: none;
+}
+
+.script-panel.active {
+    display: block;
+}
