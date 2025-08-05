@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Plus, MessageSquare, MoreHorizontal, Trash2 } from "lucide-react";
+import { CreditsTab } from "@/components/credits/credits-tab";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -69,6 +70,8 @@ export function Sidebar({
       <div className={cn("w-80 border-r flex flex-col h-full", className)}>
         {/* Header - Fixed height */}
         <div className="p-4 space-y-4 shrink-0">
+          <CreditsTab />
+
           <div className="space-y-2">
             <div
               onClick={onNewSession}

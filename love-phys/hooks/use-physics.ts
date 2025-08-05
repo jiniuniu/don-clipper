@@ -5,6 +5,7 @@ import { useCallback, useRef, useState, useEffect } from "react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { Session, Explanation } from "@/types";
+import { useCredits } from "./use-credits";
 
 export interface UsePhysicsReturn {
   // 状态
@@ -38,6 +39,8 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
   const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [hasMoreSessions, setHasMoreSessions] = useState(true);
 
+  const { canUseFeature, isAdmin } = useCredits();
+
   // 查询 - 使用分页查询
   const sessionsQuery = useQuery(api.queries.getSessionsPaginated, {
     paginationOpts: sessionsPaginationOpts,
@@ -52,8 +55,6 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
     sessionId ? { sessionId: sessionId as Id<"sessions"> } : "skip"
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [creatingSession, setCreatingSession] = useState(false);
   const creatingSessionRef = useRef(false);
 
   // 处理分页结果
@@ -117,6 +118,13 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
         throw new Error("Cannot ask question without a session");
       }
 
+      // 添加积分检查
+      if (!isAdmin && !canUseFeature) {
+        throw new Error(
+          "Insufficient credits for today. Please try again tomorrow."
+        );
+      }
+
       try {
         await generateExplanation({
           question,
@@ -127,7 +135,7 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
         throw error;
       }
     },
-    [sessionId, generateExplanation]
+    [sessionId, generateExplanation, isAdmin, canUseFeature] // 添加依赖
   );
 
   // 创建新会话 - 使用 useCallback
@@ -185,6 +193,12 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
         console.log("🚫 Duplicate createSessionAndAsk call blocked");
         throw new Error("Another session creation is in progress");
       }
+      // 添加积分检查
+      if (!isAdmin && !canUseFeature) {
+        throw new Error(
+          "Insufficient credits for today. Please try again tomorrow."
+        );
+      }
 
       try {
         creatingSessionRef.current = true;
@@ -240,7 +254,7 @@ export function usePhysics(sessionId?: string): UsePhysicsReturn {
         creatingSessionRef.current = false;
       }
     },
-    [createSessionMutation, generateExplanation]
+    [createSessionMutation, generateExplanation, isAdmin, canUseFeature]
   );
 
   return {

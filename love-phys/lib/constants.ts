@@ -106,3 +106,12 @@ export const PHYSICS_CATEGORIES = {
     "semiconductor_physics",
   ],
 } as const;
+
+// 积分系统配置
+export const CREDITS_CONFIG = {
+  DAILY_BASE_CREDITS: 10, // 每日基础积分
+  CREDITS_PER_QUESTION: 1, // 每次提问消耗积分
+  CREDITS_PER_RETRY: 1, // 重试消耗积分
+  WELCOME_BONUS_CREDITS: 5, // 新用户欢迎积分
+  SHARE_BONUS_CREDITS: 2, // 分享获得积分
+} as const;

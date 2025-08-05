@@ -100,6 +100,17 @@ export const generateExplanation = action({
         status: "completed",
       });
 
+      // 添加积分消耗
+      const isAdminFromClerk =
+        (identity.publicMetadata as { isAdmin?: boolean })?.isAdmin === true;
+      if (!isAdminFromClerk) {
+        // 非管理员需要检查积分
+        await ctx.runMutation(api.mutations.consumeCredits, {
+          userId: identity.subject,
+          amount: 1, // 每次提问消耗1积分
+        });
+      }
+
       return { sessionId, explanationId, success: true };
     } catch (error) {
       console.error("Failed to generate explanation:", error);
@@ -180,6 +191,17 @@ export const retryGeneration = action({
         svgCode: svgResult.svgCode,
         status: "completed",
       });
+
+      // 添加积分消耗
+      const isAdminFromClerk =
+        (identity.publicMetadata as { isAdmin?: boolean })?.isAdmin === true;
+      if (!isAdminFromClerk) {
+        // 非管理员需要检查积分
+        await ctx.runMutation(api.mutations.consumeCredits, {
+          userId: identity.subject,
+          amount: 1, // 每次提问消耗1积分
+        });
+      }
 
       return { success: true };
     } catch (error) {

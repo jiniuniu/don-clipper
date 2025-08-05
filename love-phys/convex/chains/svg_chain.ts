@@ -243,6 +243,129 @@ Create a clear, accurate SVG that demonstrates the physics concept effectively.
 
 {format_instructions}`;
 
+export const SVG_PROMPT_TMPL_ENHANCED = `Create an educational SVG physics diagram based on the provided explanation.
+
+## Technical Setup
+- Use viewBox='0 0 1000 600' with single quotes throughout
+- Include <title> and <desc> tags for accessibility
+
+## Animation Scenario Selection
+
+### Scenario 1: Simple Motion - Continuous/Repetitive Phenomena
+**Physical Examples**:
+- **Waves**: Sound waves, light waves, water waves, electromagnetic waves, standing waves
+- **Vibrations**: Pendulum swing, spring oscillation, molecular vibration, harmonic motion
+- **Rotations**: Planet orbits, electron shells, gyroscope motion, turbine spinning
+- **Flows**: Electric current, heat conduction, fluid streams, magnetic field lines
+- **Periodic**: AC voltage cycles, breathing motion, heartbeat, tidal motion
+
+**Use When**: Phenomenon repeats continuously without distinct stages
+**Code Pattern**:
+\`\`\`xml
+<animateTransform attributeName='transform' type='rotate' 
+  values='0 cx cy; 360 cx cy' dur='3s' repeatCount='indefinite' />
+\`\`\`
+
+### Scenario 2: Multi-Phase Process - Sequential Transformations
+**Physical Examples**:
+- **State Changes**: Ice→Water→Steam, Solid→Liquid→Gas transitions
+- **Chemical Reactions**: Reactants→Activation→Intermediates→Products
+- **Formation Processes**: Star birth (nebula→protostar→main sequence), crystal growth, tornado formation
+- **Nuclear Processes**: Radioactive decay chains, fission (neutron→impact→split→energy)
+- **Biological**: Photosynthesis steps, cell division phases, enzyme catalysis
+- **Engineering**: Engine cycles (intake→compression→combustion→exhaust)
+- **Geological**: Earthquake (stress→rupture→waves→aftershocks)
+
+**Use When**: Process has distinct beginning→middle→end stages with different mechanisms
+**Code Pattern**:
+\`\`\`xml
+<!-- CRITICAL: Use animate for opacity, NOT animateTransform -->
+<g id='phase1'>
+  <animate attributeName='opacity' values='1;1;0;0;0;0' dur='18s' repeatCount='indefinite' />
+</g>
+<g id='phase2'>  
+  <animate attributeName='opacity' values='0;0;1;1;0;0' dur='18s' repeatCount='indefinite' />
+</g>
+<g id='phase3'>
+  <animate attributeName='opacity' values='0;0;0;0;1;1' dur='18s' repeatCount='indefinite' />
+</g>
+\`\`\`
+
+### Scenario 3: Before/After Comparison - State Contrasts
+**Physical Examples**:
+- **Temperature Effects**: Hot vs cold material properties, thermal expansion
+- **Chemical States**: Before vs after reaction, catalyst effects
+- **Electrical**: Charged vs neutral objects, conductor vs insulator
+- **Mechanical**: Before vs after collision, elastic vs inelastic deformation
+- **Optical**: Polarized vs unpolarized light, reflection vs refraction
+
+**Use When**: Showing two contrasting states or conditions
+**Code Pattern**:
+\`\`\`xml
+<g id='before'>
+  <animate attributeName='opacity' values='1;1;0;0' dur='8s' repeatCount='indefinite' />
+</g>
+<g id='after'>
+  <animate attributeName='opacity' values='0;0;1;1' dur='8s' repeatCount='indefinite' />
+</g>
+\`\`\`
+
+## Quick Selection Guide
+**Ask yourself:**
+1. **Repeats forever?** → Simple Motion (waves, orbits, oscillations)
+2. **Has clear stages?** → Multi-Phase (formation, reactions, transformations)  
+3. **Comparing states?** → Before/After (hot vs cold, before vs after reaction)
+
+## Animation Rules
+1. **Opacity**: Always use \`<animate attributeName='opacity'>\` for phase visibility
+2. **Timing**: All related phases must have identical \`dur\` values  
+3. **Values**: For N phases, divide timeline equally with N value pairs each
+4. **Motion**: Use \`animateTransform\` for movement, \`animate\` for properties
+
+## Common Animation Patterns
+\`\`\`xml
+<!-- Rotation around center -->
+<animateTransform attributeName='transform' type='rotate' 
+  values='0 500 300; 360 500 300' dur='4s' repeatCount='indefinite' />
+
+<!-- Flow/Current visualization -->
+<animate attributeName='stroke-dasharray' values='0,100; 100,0' dur='2s' repeatCount='indefinite' />
+
+<!-- Pulsing/Breathing effect -->
+<animate attributeName='r' values='5; 15; 5' dur='3s' repeatCount='indefinite' />
+
+<!-- Wave motion -->
+<animateTransform attributeName='transform' type='translate' 
+  values='0,0; 0,-20; 0,0' dur='2s' repeatCount='indefinite' />
+\`\`\`
+
+## Layout & Design
+- **Phase Text Zones**: Phase 1 (x=50-300), Phase 2 (x=350-650), Phase 3 (x=700-950)
+- **Colors**: Red=hot/positive/energy, Blue=cold/negative, Green=velocity/motion, Yellow=energy/attention
+- **Text**: 16px titles, 12px descriptions, 10px labels
+
+## Physics Accuracy
+- Start objects in realistic positions based on the physical scenario
+- Follow conservation laws (energy, momentum, charge) throughout animation
+- Use accurate proportions and directions for forces and motions
+- Animate gravity effects downward (increasing Y values)
+
+## Validation Checklist
+- [ ] Animation scenario matches the physical phenomenon type
+- [ ] All phases appear in correct sequence during animation
+- [ ] No text overlaps between phases  
+- [ ] All \`dur\` values match for related animations
+- [ ] Physics principles correctly represented
+
+## Input Information
+**Question**: {question}
+**Explanation**: {explanation}
+**Related**: {relatedPhenomena}
+
+First identify which scenario best fits the phenomenon, then implement using the corresponding code pattern.
+
+{format_instructions}`;
+
 export async function createSVGLLM() {
   return new ChatOpenAI({
     apiKey: process.env.OPENROUTER_API_KEY!,
@@ -262,7 +385,7 @@ export async function generateSVGFromContent(
   const llm = await createSVGLLM();
   const parser = StructuredOutputParser.fromZodSchema(SVGGenerationSchema);
 
-  const prompt = PromptTemplate.fromTemplate(SVG_PROMPT_TMPL_SIMPLE);
+  const prompt = PromptTemplate.fromTemplate(SVG_PROMPT_TMPL_ENHANCED);
   const chain = prompt.pipe(llm).pipe(parser);
 
   return await chain.invoke({

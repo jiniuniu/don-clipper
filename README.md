@@ -3,3 +3,4 @@
 - SEO 优化
 - 接google analytics
 - marketing 页面需要进一步优化
+- 积分形式每天消耗量

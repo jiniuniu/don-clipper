@@ -216,3 +216,42 @@ export const getPublicExplanationBySlug = query({
     return explanation;
   },
 });
+
+export const getUser = query({
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
+      .first();
+    return user;
+  },
+});
+
+export const getUserCredits = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    if (!user) {
+      return null;
+    }
+
+    // 检查是否需要重置每日积分
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const needsReset = user.lastResetDate !== today;
+
+    return {
+      ...user,
+      needsReset,
+    };
+  },
+});

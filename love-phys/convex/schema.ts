@@ -9,6 +9,19 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 
+  users: defineTable({
+    userId: v.string(), // Clerk用户ID
+    email: v.string(),
+    name: v.optional(v.string()),
+    isAdmin: v.optional(v.boolean()),
+    dailyCredits: v.number(),
+    usedCredits: v.number(),
+    lastResetDate: v.string(), // YYYY-MM-DD格式
+    totalEarnedCredits: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user_id", ["userId"]),
+
   explanations: defineTable({
     sessionId: v.id("sessions"),
     question: v.string(),

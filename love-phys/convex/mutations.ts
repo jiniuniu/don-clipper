@@ -175,3 +175,106 @@ export const deleteSession = mutation({
     await ctx.db.delete(sessionId);
   },
 });
+
+export const createOrUpdateUser = mutation({
+  args: {
+    email: v.string(),
+    name: v.optional(v.string()),
+  },
+  handler: async (ctx, { email, name }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("user not signed in");
+    }
+
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    const today = new Date().toISOString().split("T")[0];
+    const now = Date.now();
+
+    if (existingUser) {
+      // 更新现有用户
+      await ctx.db.patch(existingUser._id, {
+        email,
+        name,
+        updatedAt: now,
+      });
+      return existingUser._id;
+    } else {
+      // 创建新用户
+      const isAdminFromClerk =
+        (identity.publicMetadata as { isAdmin?: boolean })?.isAdmin === true;
+
+      const userId = await ctx.db.insert("users", {
+        userId: identity.subject,
+        email,
+        name,
+        isAdmin: isAdminFromClerk,
+        dailyCredits: 15, // 新用户额外积分
+        usedCredits: 0,
+        lastResetDate: today,
+        totalEarnedCredits: 0,
+        createdAt: now,
+        updatedAt: now,
+      });
+      return userId;
+    }
+  },
+});
+
+export const resetDailyCredits = mutation({
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+
+    await ctx.db.patch(user._id, {
+      usedCredits: 0,
+      lastResetDate: today,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const consumeCredits = mutation({
+  args: {
+    userId: v.string(),
+    amount: v.number(),
+  },
+  handler: async (ctx, { userId, amount }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // 检查是否为管理员
+    if (user.isAdmin) {
+      return; // 管理员不消耗积分
+    }
+
+    // 检查积分是否足够
+    if (user.usedCredits + amount > user.dailyCredits) {
+      throw new Error("Insufficient credits");
+    }
+
+    await ctx.db.patch(user._id, {
+      usedCredits: user.usedCredits + amount,
+      updatedAt: Date.now(),
+    });
+  },
+});
