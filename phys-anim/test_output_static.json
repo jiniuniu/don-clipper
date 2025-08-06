@@ -1,0 +1,24 @@
+{
+  "question": "为什么电子不会掉入原子核？",
+  "title": "量子力学解释：电子的稳定性",
+  "total_scenes": 2,
+  "scenes": [
+    {
+      "scene_id": "scene1",
+      "title": "经典物理学的困惑",
+      "svg_content": "<svg viewBox=\"0 0 800 600\" xmlns=\"http://www.w3.org/2000/svg\">\n  <!-- 背景 -->\n  <rect width=\"800\" height=\"600\" fill=\"#f8fafc\"/>\n  \n  <!-- 原子核 -->\n  <circle cx=\"400\" cy=\"300\" r=\"25\" fill=\"#ef4444\" stroke=\"#dc2626\" stroke-width=\"3\"/>\n  <text x=\"400\" y=\"250\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"bold\" fill=\"#1f2937\">原子核 (+)</text>\n  \n  <!-- 经典预期：螺旋轨道 -->\n  <path d=\"M 600 300 Q 580 250 550 300 Q 520 350 480 300 Q 450 250 420 300\" \n        fill=\"none\" stroke=\"#3b82f6\" stroke-width=\"4\" opacity=\"0.7\" stroke-dasharray=\"8,4\"/>\n  \n  <!-- 电子 -->\n  <circle cx=\"600\" cy=\"300\" r=\"12\" fill=\"#3b82f6\">\n    <animateMotion dur=\"3s\" repeatCount=\"indefinite\" rotate=\"auto\">\n      <mpath href=\"#spiral\"/>\n    </animateMotion>\n  </circle>\n  \n  <!-- 螺旋路径 -->\n  <defs>\n    <path id=\"spiral\" d=\"M 600 300 Q 580 250 550 300 Q 520 350 480 300 Q 450 250 425 300\"/>\n  </defs>\n  \n  <!-- 能量辐射箭头 -->\n  <g stroke=\"#f59e0b\" stroke-width=\"3\" fill=\"#f59e0b\" opacity=\"0.8\">\n    <line x1=\"550\" y1=\"250\" x2=\"530\" y2=\"230\" marker-end=\"url(#arrow)\"/>\n    <line x1=\"480\" y1=\"350\" x2=\"460\" y2=\"370\" marker-end=\"url(#arrow)\"/>\n    <text x=\"500\" y=\"200\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"bold\" fill=\"#f59e0b\">能量辐射</text>\n  </g>\n  \n  <!-- 箭头标记 -->\n  <defs>\n    <marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\">\n      <polygon points=\"0 0, 10 3.5, 0 7\" fill=\"#f59e0b\"/>\n    </marker>\n  </defs>\n  \n  <!-- 底部说明 -->\n  <text x=\"400\" y=\"550\" text-anchor=\"middle\" font-size=\"20\" font-weight=\"bold\" fill=\"#dc2626\">\n    经典预测：电子应该螺旋坠落！\n  </text>\n</svg>",
+      "explanation": "经典物理学预测电子会因辐射能量而螺旋坠入原子核，但实际观察显示电子保持稳定轨道。"
+    },
+    {
+      "scene_id": "scene2",
+      "title": "量子力学的概率云",
+      "svg_content": "<svg viewBox=\"0 0 800 600\" xmlns=\"http://www.w3.org/2000/svg\">\n  <!-- 背景 -->\n  <rect width=\"800\" height=\"600\" fill=\"#f8fafc\"/>\n  \n  <!-- 概率云渐变定义 -->\n  <defs>\n    <radialGradient id=\"prob\" cx=\"50%\" cy=\"50%\">\n      <stop offset=\"0%\" style=\"stop-color:#ef4444;stop-opacity:0.8\"/>\n      <stop offset=\"30%\" style=\"stop-color:#f97316;stop-opacity:0.6\"/>\n      <stop offset=\"50%\" style=\"stop-color:#eab308;stop-opacity:0.4\"/>\n      <stop offset=\"70%\" style=\"stop-color:#22c55e;stop-opacity:0.3\"/>\n      <stop offset=\"100%\" style=\"stop-color:#3b82f6;stop-opacity:0.1\"/>\n    </radialGradient>\n  </defs>\n  \n  <!-- 原子核 -->\n  <circle cx=\"400\" cy=\"300\" r=\"20\" fill=\"#1f2937\" stroke=\"#000\" stroke-width=\"2\"/>\n  <text x=\"400\" y=\"270\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"bold\" fill=\"#1f2937\">核</text>\n  \n  <!-- 概率云 -->\n  <circle cx=\"400\" cy=\"300\" r=\"180\" fill=\"url(#prob)\">\n    <animate attributeName=\"opacity\" values=\"0.6;1;0.6\" dur=\"3s\" repeatCount=\"indefinite\"/>\n  </circle>\n  \n  <!-- 概率密度等高线 -->\n  <circle cx=\"400\" cy=\"300\" r=\"50\" fill=\"none\" stroke=\"#ef4444\" stroke-width=\"3\" opacity=\"0.7\"/>\n  <circle cx=\"400\" cy=\"300\" r=\"90\" fill=\"none\" stroke=\"#f97316\" stroke-width=\"2\" opacity=\"0.5\"/>\n  <circle cx=\"400\" cy=\"300\" r=\"130\" fill=\"none\" stroke=\"#eab308\" stroke-width=\"2\" opacity=\"0.4\"/>\n  \n  <!-- 标注 -->\n  <text x=\"450\" y=\"280\" font-size=\"14\" font-weight=\"bold\" fill=\"#ef4444\">高概率</text>\n  <text x=\"490\" y=\"300\" font-size=\"14\" font-weight=\"bold\" fill=\"#f97316\">中概率</text>\n  <text x=\"530\" y=\"320\" font-size=\"14\" font-weight=\"bold\" fill=\"#eab308\">低概率</text>\n  \n  <!-- 中心标识 -->\n  <text x=\"400\" y=\"350\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"bold\" fill=\"#ef4444\">\n    |Ψ|² 最大值\n  </text>\n  \n  <!-- 底部说明 -->\n  <text x=\"400\" y=\"550\" text-anchor=\"middle\" font-size=\"20\" font-weight=\"bold\" fill=\"#059669\">\n    电子概率密度在原子核中心最高\n  </text>\n</svg>",
+      "explanation": "在量子力学中，电子以概率云形式存在，概率密度在原子核中心达到最大值。"
+    }
+  ],
+  "style": {
+    "primary_color": "#2196F3",
+    "background": "dark",
+    "font_size": "medium"
+  }
+}
