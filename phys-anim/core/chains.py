@@ -1,8 +1,8 @@
-from core.prompts import CONTENT_PROMPT_TEMPLATE, SVG_PROMPT_TEMPLATE
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_openai import ChatOpenAI
+from prompts import CONTENT_PROMPT_TEMPLATE, SVG_PROMPT_TEMPLATE
 from pydantic import BaseModel, Field
 
 
