@@ -4,19 +4,19 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from auth.auth_models import User, UserRole
-from db.models import GenerationHistory, GenerationHistoryCreate, GenerationStatus
-from motor.motor_asyncio import AsyncIOMotorDatabase
-from pymongo import DESCENDING
-from schemas.schemas import (
+from models import (
     ActivityStats,
+    GenerationHistory,
+    GenerationHistoryCreate,
     GenerationHistoryResponse,
+    GenerationStatus,
     HistorySearchRequest,
     ModelStats,
     PaginatedResponse,
     StatsResponse,
-    UserStats,
 )
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from pymongo import DESCENDING
 
 logger = logging.getLogger(__name__)
 
@@ -30,19 +30,6 @@ class HistoryService:
         self.db = database
         self.collection = database[collection_name]
 
-    def _build_user_query(self, user: Optional[User] = None) -> Dict[str, Any]:
-        """根据用户权限构建查询条件"""
-        if user is None:
-            # 无用户信息，返回空查询（通常不应该发生）
-            return {}
-
-        if user.role == UserRole.ADMIN:
-            # 管理员可以查看所有记录
-            return {}
-        else:
-            # 普通用户只能查看自己的记录
-            return {"user_id": user.id}
-
     async def save_generation(
         self, create_data: GenerationHistoryCreate
     ) -> GenerationHistory:
@@ -55,7 +42,6 @@ class HistoryService:
                 "explanation": create_data.explanation,
                 "svg_code": create_data.svg_code,
                 "model": create_data.model,
-                "user_id": create_data.user_id,
                 "status": create_data.status,
                 "error_message": create_data.error_message,
                 "created_at": now,
@@ -64,9 +50,7 @@ class HistoryService:
             }
 
             await self.collection.insert_one(history_data)
-            logger.info(
-                f"保存历史记录成功: {history_data['id']} (用户: {create_data.user_id})"
-            )
+            logger.info(f"保存历史记录成功: {history_data['id']}")
 
             return GenerationHistory(**history_data)
 
@@ -75,11 +59,7 @@ class HistoryService:
             raise
 
     async def create_pending_record(
-        self,
-        question: str,
-        model: str,
-        user_id: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        self, question: str, model: str, metadata: Optional[Dict[str, Any]] = None
     ) -> GenerationHistory:
         """创建一个pending状态的记录"""
         create_data = GenerationHistoryCreate(
@@ -87,42 +67,32 @@ class HistoryService:
             explanation="",
             svg_code="",
             model=model,
-            user_id=user_id,
             status=GenerationStatus.PENDING,
             metadata=metadata,
         )
         return await self.save_generation(create_data)
 
-    async def get_by_id(
-        self, history_id: str, user: Optional[User] = None
-    ) -> Optional[GenerationHistory]:
-        """根据ID获取历史记录（带权限检查）"""
+    async def get_by_id(self, history_id: str) -> Optional[GenerationHistory]:
+        """根据ID获取历史记录"""
         try:
             result = await self.collection.find_one({"id": history_id})
-            if not result:
-                return None
-
-            # 权限检查
-            if user:
-                if user.role != UserRole.ADMIN and result.get("user_id") != user.id:
-                    # 普通用户尝试访问他人记录，或访问历史无主记录
-                    return None
-
-            # 移除MongoDB的_id字段
-            result.pop("_id", None)
-            return GenerationHistory(**result)
+            if result:
+                # 移除MongoDB的_id字段
+                result.pop("_id", None)
+                return GenerationHistory(**result)
+            return None
 
         except Exception as e:
             logger.error(f"查询历史记录失败: {e}")
             raise
 
     async def search_history(
-        self, search_request: HistorySearchRequest, user: Optional[User] = None
+        self, search_request: HistorySearchRequest
     ) -> PaginatedResponse:
-        """搜索历史记录（带权限过滤）"""
+        """搜索历史记录"""
         try:
-            # 构建基础查询条件
-            query = self._build_user_query(user)
+            # 构建查询条件
+            query = {}
 
             # 关键词搜索
             if search_request.keyword:
@@ -191,21 +161,14 @@ class HistoryService:
             logger.error(f"搜索历史记录失败: {e}")
             raise
 
-    async def delete_by_id(self, history_id: str, user: Optional[User] = None) -> bool:
-        """删除历史记录（带权限检查）"""
+    async def delete_by_id(self, history_id: str) -> bool:
+        """删除历史记录"""
         try:
-            # 先检查记录是否存在以及权限
-            record = await self.get_by_id(history_id, user)
-            if not record:
-                return False
-
             result = await self.collection.delete_one({"id": history_id})
             success = result.deleted_count > 0
 
             if success:
-                logger.info(
-                    f"删除历史记录成功: {history_id} (用户: {user.id if user else 'unknown'})"
-                )
+                logger.info(f"删除历史记录成功: {history_id}")
             else:
                 logger.warning(f"历史记录不存在: {history_id}")
 
@@ -250,24 +213,20 @@ class HistoryService:
             logger.error(f"更新历史记录失败: {e}")
             raise
 
-    async def get_stats(self, user: Optional[User] = None) -> StatsResponse:
-        """获取统计信息（根据用户权限返回不同数据）"""
+    async def get_stats(self) -> StatsResponse:
+        """获取统计信息"""
         try:
-            # 根据用户权限构建查询
-            base_query = self._build_user_query(user)
-
             # 基础统计
-            total = await self.collection.count_documents(base_query)
+            total = await self.collection.count_documents({})
             successful = await self.collection.count_documents(
-                {**base_query, "status": GenerationStatus.SUCCESS}
+                {"status": GenerationStatus.SUCCESS}
             )
             failed = await self.collection.count_documents(
-                {**base_query, "status": GenerationStatus.FAILED}
+                {"status": GenerationStatus.FAILED}
             )
 
             # 按模型统计
             model_pipeline = [
-                {"$match": base_query},
                 {
                     "$group": {
                         "_id": "$model",
@@ -291,33 +250,10 @@ class HistoryService:
                     )
                 )
 
-            # 按用户统计（仅管理员可见）
-            by_user = None
-            if user and user.role == UserRole.ADMIN:
-                user_pipeline = [
-                    {
-                        "$group": {
-                            "_id": "$user_id",
-                            "count": {"$sum": 1},
-                        }
-                    },
-                    {"$sort": {"count": -1}},
-                    {"$limit": 10},  # 只取前10名
-                ]
-
-                user_results = await self.collection.aggregate(user_pipeline).to_list(
-                    length=None
-                )
-                by_user = []
-                for item in user_results:
-                    by_user.append(UserStats(user_id=item["_id"], count=item["count"]))
-
             # 最近7天的活动统计
             seven_days_ago = datetime.now() - timedelta(days=7)
-            activity_query = {**base_query, "created_at": {"$gte": seven_days_ago}}
-
             activity_pipeline = [
-                {"$match": activity_query},
+                {"$match": {"created_at": {"$gte": seven_days_ago}}},
                 {
                     "$group": {
                         "_id": {
@@ -346,7 +282,6 @@ class HistoryService:
                 successful_generations=successful,
                 failed_generations=failed,
                 by_model=by_model,
-                by_user=by_user,
                 recent_activity=recent_activity,
                 timestamp=datetime.now(),
             )
@@ -356,14 +291,12 @@ class HistoryService:
             raise
 
     async def get_recent_history(
-        self, limit: int = 10, user: Optional[User] = None
+        self, limit: int = 10
     ) -> List[GenerationHistoryResponse]:
-        """获取最近的历史记录（带权限过滤）"""
+        """获取最近的历史记录"""
         try:
-            query = {**self._build_user_query(user), "status": GenerationStatus.SUCCESS}
-
             cursor = (
-                self.collection.find(query, {"_id": 0})
+                self.collection.find({"status": GenerationStatus.SUCCESS}, {"_id": 0})
                 .sort("created_at", DESCENDING)
                 .limit(limit)
             )
@@ -376,37 +309,23 @@ class HistoryService:
             logger.error(f"获取最近历史记录失败: {e}")
             raise
 
-    async def bulk_delete(
-        self, history_ids: List[str], user: Optional[User] = None
-    ) -> int:
-        """批量删除历史记录（带权限检查）"""
+    async def bulk_delete(self, history_ids: List[str]) -> int:
+        """批量删除历史记录"""
         try:
-            # 构建删除查询
-            delete_query = {"id": {"$in": history_ids}}
-
-            # 添加用户权限过滤
-            user_query = self._build_user_query(user)
-            delete_query.update(user_query)
-
-            result = await self.collection.delete_many(delete_query)
+            result = await self.collection.delete_many({"id": {"$in": history_ids}})
             deleted_count = result.deleted_count
 
-            logger.info(
-                f"批量删除历史记录: {deleted_count}/{len(history_ids)} (用户: {user.id if user else 'unknown'})"
-            )
+            logger.info(f"批量删除历史记录: {deleted_count}/{len(history_ids)}")
             return deleted_count
 
         except Exception as e:
             logger.error(f"批量删除历史记录失败: {e}")
             raise
 
-    async def count_by_status(
-        self, status: GenerationStatus, user: Optional[User] = None
-    ) -> int:
-        """按状态统计记录数量（带权限过滤）"""
+    async def count_by_status(self, status: GenerationStatus) -> int:
+        """按状态统计记录数量"""
         try:
-            query = {**self._build_user_query(user), "status": status}
-            return await self.collection.count_documents(query)
+            return await self.collection.count_documents({"status": status})
         except Exception as e:
             logger.error(f"按状态统计失败: {e}")
             raise
@@ -414,10 +333,11 @@ class HistoryService:
     async def get_user_history(
         self, user_id: str, limit: int = 20
     ) -> List[GenerationHistoryResponse]:
-        """获取特定用户的历史记录"""
+        """获取特定用户的历史记录 (如果有用户系统的话)"""
         try:
+            # 这里假设metadata中存储了user_id
             cursor = (
-                self.collection.find({"user_id": user_id}, {"_id": 0})
+                self.collection.find({"metadata.user_id": user_id}, {"_id": 0})
                 .sort("created_at", DESCENDING)
                 .limit(limit)
             )

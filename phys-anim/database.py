@@ -56,32 +56,13 @@ async def get_database() -> AsyncIOMotorDatabase:
 async def create_indexes():
     """创建数据库索引"""
     try:
-        # 历史记录集合索引
-        history_collection = db.database.generation_history
+        collection = db.database.generation_history
 
         # 创建各种索引
-        await history_collection.create_index("created_at")
-        await history_collection.create_index("model")
-        await history_collection.create_index("status")
-        await history_collection.create_index("user_id")
-        await history_collection.create_index(
-            [("question", "text"), ("explanation", "text")]
-        )
-
-        # 复合索引：用户+状态+时间
-        await history_collection.create_index(
-            [("user_id", 1), ("status", 1), ("created_at", -1)]
-        )
-
-        # 用户集合索引
-        users_collection = db.database.users
-
-        # 创建用户相关索引
-        await users_collection.create_index("username", unique=True)
-        await users_collection.create_index("email", unique=True)
-        await users_collection.create_index("created_at")
-        await users_collection.create_index("is_active")
-        await users_collection.create_index("role")
+        await collection.create_index("created_at")
+        await collection.create_index("model")
+        await collection.create_index("status")
+        await collection.create_index([("question", "text"), ("explanation", "text")])
 
         logger.info("数据库索引创建完成")
 
