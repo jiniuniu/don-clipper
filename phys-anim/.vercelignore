@@ -1,0 +1,5 @@
+# .vercelignore
+phys-anim/
+docs/
+*.md
+!love-phys/
