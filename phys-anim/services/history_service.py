@@ -25,10 +25,9 @@ class HistoryService:
     def __init__(
         self,
         database: AsyncIOMotorDatabase,
-        collection_name: str = "generation_history",
     ):
         self.db = database
-        self.collection = database[collection_name]
+        self.collection = database.generation_history
 
     async def save_generation(
         self, create_data: GenerationHistoryCreate
