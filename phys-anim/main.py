@@ -5,11 +5,13 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 
+from api.admin_routes import admin_router
 from api.routes import router
 from database import close_mongo_connection, connect_to_mongo
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 # 配置日志
 logging.basicConfig(
@@ -53,6 +55,7 @@ app = FastAPI(
 
 # CORS中间件配置
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -117,6 +120,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # 注册API路由
 app.include_router(router, prefix="/api/v1", tags=["Physics Animation API"])
+app.include_router(admin_router, tags=["Admin"])
 
 
 # 根路由
