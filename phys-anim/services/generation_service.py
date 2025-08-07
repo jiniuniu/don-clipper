@@ -9,8 +9,8 @@ from core.chains import (
     create_svg_chain,
 )
 from core.llm import get_llm
+from db.models import GenerationStatus
 from langchain_core.runnables import Runnable
-from models import GenerationStatus
 from services.history_service import HistoryService
 
 logger = logging.getLogger(__name__)
@@ -74,16 +74,20 @@ class GenerationService:
             raise
 
     async def generate_full_with_history(
-        self, question: str, model: str, metadata: Optional[Dict[str, Any]] = None
+        self,
+        question: str,
+        model: str,
+        user_id: str,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Tuple[PhysicsContent, SVGGeneration, str]:
         """生成完整内容并保存到历史记录"""
         history_record = None
 
         try:
             # 1. 创建pending记录
-            logger.info(f"创建pending记录: {question[:50]}...")
+            logger.info(f"创建pending记录: {question[:50]}... (用户: {user_id})")
             history_record = await self.history_service.create_pending_record(
-                question=question, model=model, metadata=metadata
+                question=question, model=model, user_id=user_id, metadata=metadata
             )
             history_id = history_record.id
 
@@ -111,7 +115,7 @@ class GenerationService:
                 status=GenerationStatus.SUCCESS,
             )
 
-            logger.info(f"完整生成成功: {history_id}")
+            logger.info(f"完整生成成功: {history_id} (用户: {user_id})")
             return physics_content, svg_result, history_id
 
         except Exception as e:

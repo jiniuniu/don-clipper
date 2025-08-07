@@ -6,7 +6,8 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 
 from api.routes import router
-from database import close_mongo_connection, connect_to_mongo
+from auth.routes import router as auth_router
+from db.database import close_mongo_connection, connect_to_mongo
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -43,8 +44,8 @@ async def lifespan(app: FastAPI):
 # 创建FastAPI应用
 app = FastAPI(
     title="Physics Animation Generator API",
-    description="生成物理解释和SVG动画的API服务",
-    version="1.0.0",
+    description="生成物理解释和SVG动画的API服务，支持JWT认证",
+    version="2.0.0",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -115,8 +116,9 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# 注册API路由
-app.include_router(router, prefix="/api/v1", tags=["Physics Animation API"])
+# 注册路由
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["认证"])
+app.include_router(router, prefix="/api/v1", tags=["物理动画"])
 
 
 # 根路由
@@ -125,11 +127,24 @@ async def root():
     """API根路径"""
     return {
         "name": "Physics Animation Generator API",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "status": "running",
         "timestamp": datetime.now(),
         "docs_url": "/docs",
         "api_prefix": "/api/v1",
+        "auth_endpoints": {
+            "register": "/api/v1/auth/register",
+            "login": "/api/v1/auth/login",
+            "profile": "/api/v1/auth/me",
+        },
+        "features": [
+            "JWT认证",
+            "用户权限管理",
+            "物理内容生成",
+            "SVG动画生成",
+            "历史记录管理",
+            "数据权限隔离",
+        ],
     }
 
 
@@ -138,7 +153,7 @@ async def root():
 async def health_check():
     """全局健康检查"""
     try:
-        from database import get_database
+        from db.database import get_database
 
         # 检查数据库连接
         database = await get_database()
@@ -148,7 +163,7 @@ async def health_check():
             "status": "healthy",
             "database": "connected",
             "timestamp": datetime.now(),
-            "version": "1.0.0",
+            "version": "2.0.0",
         }
     except Exception as e:
         logger.error(f"健康检查失败: {e}")
@@ -169,24 +184,56 @@ async def api_info():
     """API信息"""
     return {
         "title": "Physics Animation Generator API",
-        "description": "生成物理解释和SVG动画的API服务",
-        "version": "1.0.0",
+        "description": "生成物理解释和SVG动画的API服务，支持JWT认证",
+        "version": "2.0.0",
         "endpoints": {
             "docs": "/docs",
             "redoc": "/redoc",
             "openapi": "/openapi.json",
             "health": "/health",
             "api_v1": "/api/v1",
+            "auth": "/api/v1/auth",
+        },
+        "authentication": {
+            "type": "Bearer JWT",
+            "register": "/api/v1/auth/register",
+            "login": "/api/v1/auth/login",
+            "header_format": "Authorization: Bearer <token>",
         },
         "features": [
+            "JWT认证系统",
+            "用户权限管理（admin/user）",
             "物理内容生成",
             "SVG动画生成",
             "历史记录管理",
+            "数据权限隔离",
             "批量处理",
             "统计分析",
             "数据导出",
         ],
         "supported_models": ["claude", "qwen"],
+        "user_roles": [
+            {
+                "role": "user",
+                "permissions": [
+                    "生成内容和动画",
+                    "查看自己的历史记录",
+                    "删除自己的记录",
+                    "查看个人统计",
+                ],
+            },
+            {
+                "role": "admin",
+                "permissions": [
+                    "所有用户权限",
+                    "查看所有历史记录",
+                    "删除任意记录",
+                    "管理缓存",
+                    "查看全局统计",
+                    "用户管理",
+                ],
+            },
+        ],
         "timestamp": datetime.now(),
     }
 
