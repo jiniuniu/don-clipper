@@ -8,6 +8,7 @@ import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Logo } from "@/components/ui/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,10 +43,8 @@ export function TopBar() {
     isActiveLink(href) ? "bg-gray-900/80 text-white hover:bg-gray-900/90" : "";
 
   const navigationItems = [
-    { href: "/browse", label: "Browse" },
-    ...(isLoaded && isSignedIn
-      ? [{ href: "/session", label: "Dashboard" }]
-      : []),
+    { href: "/browse", label: "Demos" },
+    ...(isLoaded && isSignedIn ? [{ href: "/session", label: "Ask" }] : []),
   ];
 
   return (
@@ -56,7 +55,14 @@ export function TopBar() {
           <div className="flex items-center space-x-8">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl">🔬</span>
+              <Logo
+                size={32}
+                color="#1f2937"
+                hoverColor="#3b82f6"
+                className="w-8 h-8"
+                animated={true}
+                clickable={true}
+              />
               <span className="text-xl md:text-xl font-bold text-gray-900 hidden sm:block">
                 {APP_NAME}
               </span>
@@ -69,7 +75,7 @@ export function TopBar() {
                 className={getButtonClassName("/browse")}
                 asChild
               >
-                <Link href="/browse">Browse</Link>
+                <Link href="/browse">Demos</Link>
               </Button>
               {/* Dashboard link only for signed in users */}
               {isLoaded && isSignedIn && (
@@ -78,7 +84,7 @@ export function TopBar() {
                   className={getButtonClassName("/session")}
                   asChild
                 >
-                  <Link href="/session">Dashboard</Link>
+                  <Link href="/session">Ask</Link>
                 </Button>
               )}
             </nav>

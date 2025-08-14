@@ -7,8 +7,9 @@ import { usePaginatedQuery } from "convex/react";
 import { ExplanationPreviewCard } from "@/components/explanation/explanation-preview-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Logo } from "@/components/ui/logo";
 import { api } from "@/convex/_generated/api";
-import { Loader2 } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 
 export default function BrowsePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -35,8 +36,17 @@ export default function BrowsePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <Logo
+              size={80}
+              color="#1f2937"
+              hoverColor="#3b82f6"
+              className="w-16 h-16 md:w-20 md:h-20"
+              animated={true}
+            />
+          </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            🌟 Explore Physics Explanations
+            Explore Physics Explanations
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Discover popular physics questions from social media and forums,
@@ -85,7 +95,9 @@ export default function BrowsePage() {
         {/* Empty State */}
         {status === "Exhausted" && explanations?.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
+            <div className="flex justify-center mb-4">
+              <Search className="h-16 w-16 text-gray-400" />
+            </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               No explanations found
             </h3>

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 // app/page.tsx - Marketing Homepage
 "use client";
 
@@ -7,6 +8,7 @@ import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import { ArrowRight, Brain, Lightbulb, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Logo } from "@/components/ui/logo";
 
 export default function HomePage() {
   const router = useRouter();
@@ -26,7 +28,15 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="text-center">
             {/* Logo */}
-            <div className="text-8xl mb-8">🔬</div>
+            <div className="mb-8 flex justify-center">
+              <Logo
+                size={192}
+                color="#1f2937"
+                hoverColor="#3b82f6"
+                className="w-32 h-32 md:w-48 md:h-48"
+                animated={true}
+              />
+            </div>
 
             {/* Headline */}
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -38,8 +48,10 @@ export default function HomePage() {
             </p>
 
             <p className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto">
-              Ask any question about natural phenomena, and get detailed physics
-              explanations with beautiful visual demonstrations powered by AI.
+              Discover the science behind everyday wonders. From the shimmer of
+              soap bubbles to the roar of rocket engines, unlock the physics
+              that shapes our world with AI-powered explanations and stunning
+              visual demonstrations.
             </p>
 
             {/* CTA Buttons */}
@@ -89,8 +101,9 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Describe any natural phenomenon you&apos;re curious about.
-                  From rainbows to rockets, we&apos;ve got you covered.
+                  From "Why is the sky blue?" to "How do rockets escape
+                  gravity?" — Ask about any phenomenon that sparks your
+                  curiosity.
                 </p>
               </CardContent>
             </Card>
@@ -101,12 +114,12 @@ export default function HomePage() {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Lightbulb className="h-8 w-8 text-green-600" />
                 </div>
-                <CardTitle className="text-xl">Get Explanations</CardTitle>
+                <CardTitle className="text-xl">Understand Deeply</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Receive detailed physics explanations in clear, accessible
-                  language with real-world examples.
+                  Get crystal-clear explanations that connect complex physics to
+                  your everyday experiences, making science truly accessible.
                 </p>
               </CardContent>
             </Card>
@@ -117,12 +130,12 @@ export default function HomePage() {
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Zap className="h-8 w-8 text-purple-600" />
                 </div>
-                <CardTitle className="text-xl">See Visuals</CardTitle>
+                <CardTitle className="text-xl">Watch It Come Alive</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Interactive diagrams and animations help you visualize complex
-                  physics concepts.
+                  Experience physics through interactive animations and elegant
+                  diagrams that transform abstract concepts into visual stories.
                 </p>
               </CardContent>
             </Card>
@@ -134,11 +147,12 @@ export default function HomePage() {
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Explore Physics?
+            Ready to See the World Through New Eyes?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Start your journey of discovery today. Ask any question and get
-            instant, detailed explanations with beautiful visualizations.
+            Join thousands of curious minds exploring the elegant laws that
+            govern everything around us. Your next "aha!" moment is just a
+            question away.
           </p>
           <Button
             size="lg"
@@ -156,11 +170,17 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
-              <span className="text-3xl mr-2">🔬</span>
+              <Logo
+                size={32}
+                color="#ffffff"
+                hoverColor="#93c5fd"
+                className="w-8 h-8 mr-2"
+                animated={true}
+              />
               <span className="text-2xl font-bold">{APP_NAME}</span>
             </div>
             <p className="text-gray-400 mb-4">
-              Making physics accessible to everyone
+              Illuminating the science behind everyday wonders
             </p>
             <div className="flex justify-center space-x-6">
               <Link
