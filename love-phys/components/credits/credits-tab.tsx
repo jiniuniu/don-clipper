@@ -26,6 +26,8 @@ export function CreditsTab() {
     );
   }
 
+  // 计算已使用的积分数量
+  const usedCredits = dailyCredits - remainingCredits;
   const isLow = remainingCredits <= 2;
   const isEmpty = remainingCredits === 0;
 
@@ -39,7 +41,7 @@ export function CreditsTab() {
           variant={isEmpty ? "destructive" : isLow ? "outline" : "secondary"}
           className="text-xs"
         >
-          {remainingCredits}/{dailyCredits}
+          {usedCredits}/{dailyCredits}
         </Badge>
       </div>
     </div>

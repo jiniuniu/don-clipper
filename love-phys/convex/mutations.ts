@@ -213,7 +213,7 @@ export const createOrUpdateUser = mutation({
         email,
         name,
         isAdmin: isAdminFromClerk,
-        dailyCredits: 15, // 新用户额外积分
+        dailyCredits: 10, // 新用户额外积分
         usedCredits: 0,
         lastResetDate: today,
         totalEarnedCredits: 0,
